@@ -1,4 +1,9 @@
 *.pyc
 global_out/*.dat
-pdb_mini/*.pdb
+*.pdb
 Minimizer/minimizer/run_mini/output.dat
+Minimizer/minimizer/run_builder/output.dat
+Minimizer/minimizer/run_builder/proteins.dat
+Minimizer/minimizer/run_builder/rctrPDB.sh
+Minimizer/minimizer/run_mini/proteins.dat
+Minimizer/minimizer/run_mini/runMini.sh
