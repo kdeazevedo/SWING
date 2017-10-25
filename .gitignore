@@ -1,0 +1,4 @@
+*.pyc
+global_out/*.dat
+pdb_mini/*.pdb
+Minimizer/minimizer/run_mini/output.dat
