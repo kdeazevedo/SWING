@@ -1,6 +1,7 @@
 *.pyc
 global_out/*.dat
 *.pdb
+*.sw[op]
 Minimizer/minimizer/run_mini/output.dat
 Minimizer/minimizer/run_builder/output.dat
 Minimizer/minimizer/run_builder/global.dat

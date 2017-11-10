@@ -3,6 +3,7 @@ import os.path
 import logging
 import dockerasmus.pdb as pdb
 import models.protein
+from models.complex import Complex
 import subprocess
 
 logger = logging.getLogger('spam_application')
@@ -20,6 +21,13 @@ subprocess.call(['cp',args.rec,'Proteins'])
 rec = pdb.Protein.from_pdb_file(args.rec)
 lig = pdb.Protein.from_pdb_file(args.lig)
 
+cpx = Complex(rec,lig)
+print(cpx.lig_quat)
+A = cpx.rotations(0,0,0,0,0)
+print(A)
+
+
+assert False
 lig.write_atoms('Proteins/1JP3_B_rota12.pdb')
 subprocess.call(["python3", 'Minimizer/runMini.py', '-rec','Proteins/1JP3_A.pdb', '-lig','Proteins/1JP3_B_rota12.pdb'])
 
