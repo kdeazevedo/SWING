@@ -16,17 +16,17 @@ class Complex():
         self.center_rec_quat = quat.quaternion(*self.center_rec)
         self.center_lig = np.mean(lig.atom_positions(),axis=0)
         self.axis = self.center_lig - self.center_rec
-        self.lig_quat = quat.as_quat_array(np.c_[np.zeros(lig.atom_positions().shape[0]),lig.atom_positions()-self.center_rec])
+        self.lig_quat = quat.as_quat_array(np.c_[np.zeros(lig.atom_positions().shape[0]),lig.atom_positions()])
 
 
-    def min_ca(self):
+    def min_ca(self,lig):
         """
         Return the minimum distance between receptor's and ligand's carbon alpha
         """
         # TODO : Use ann when matrix size is large
-        return np.min(cdist(self.rec_ca_pos,self.lig_ca_pos))
+        return np.min(cdist(self.rec.get_ca(),lig[self.lig.get_ca_ind()]))
 
-    def rotatations(self,theta,phi,alpha,beta,gamma):
+    def rotations(self,theta,phi,alpha,beta,gamma):
         """
         Return ligand atoms positions after rotation around receptor and self-rotation.
         Rotation around receptor will be treated first, then self-rotation
@@ -45,6 +45,7 @@ class Complex():
         tmp_axis_quat = transq*quat.quaternion(*self.axis)*np.conjugate(transq)
         tmp_axis = quat.as_float_array(tmp_axis_quat)[1:]
         rotateq = self_rot_quat(-tmp_axis,alpha,beta,gamma)
-        trans_quat = transq*self.lig_quat*np.conjugate(transq)
+        trans_quat = transq*(self.lig_quat-self.center_rec_quat)*np.conjugate(transq)
         rotate_quat = rotateq*(trans_quat-tmp_axis_quat)*np.conjugate(rotateq)
         return quat.as_float_array(rotate_quat+tmp_axis_quat+self.center_rec_quat)[:,1:]
+

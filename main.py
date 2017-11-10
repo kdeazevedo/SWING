@@ -5,6 +5,7 @@ import dockerasmus.pdb as pdb
 import models.protein
 from models.complex import Complex
 import subprocess
+from functions import angles_generator
 
 logger = logging.getLogger('spam_application')
 
@@ -22,12 +23,16 @@ rec = pdb.Protein.from_pdb_file(args.rec)
 lig = pdb.Protein.from_pdb_file(args.lig)
 
 cpx = Complex(rec,lig)
-print(cpx.lig_quat)
-A = cpx.rotations(0,0,0,0,0)
-print(A)
-
-
+counter = 0
+print(cpx.rotations(0,0,0,0,0))
 assert False
+for l in angles_generator(1000):
+    A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
+    m = cpx.min_ca(A)
+    if m <10:
+        counter += 1
+print(counter)
+
 lig.write_atoms('Proteins/1JP3_B_rota12.pdb')
 subprocess.call(["python3", 'Minimizer/runMini.py', '-rec','Proteins/1JP3_A.pdb', '-lig','Proteins/1JP3_B_rota12.pdb'])
 
