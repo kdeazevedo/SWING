@@ -1,4 +1,5 @@
 import dockerasmus.pdb as pdb
+import numpy as np
 
 def iter_chain_atoms(self):
     """
@@ -25,13 +26,25 @@ def write_atoms(self,path):
     print("END", file=out)
     out.close()
 
-
-def trans_rotate(self,trans=None,rotate=None):
-    """
-    The function takes translateion and rotation's parameters, retruns atoms' positions translated and rotated matrix.
-    """
-    pass
-
-
 pdb.Protein.write_atoms = write_atoms
-pdb.Protein.trans_rotate = trans_rotate
+
+def get_ca_ind(self):
+    """
+    Return list(numpy.array) of carbon alpha index in self.atom_positions
+    """
+    try:
+        return self._ca_ind
+    except:
+        self._ca_ind = np.where(np.array([a.name.lower() for a in self.iteratoms()])=='ca')[0]
+        return self._ca_ind
+
+pdb.Protein.get_ca_ind = get_ca_ind
+
+def get_ca(self):
+    try:
+        return self._ca
+    except:
+        self._ca = self.atom_positions()[self.get_ca_ind()]
+        return self._ca
+
+pdb.Protein.get_ca = get_ca
