@@ -1,5 +1,11 @@
 import dockerasmus.pdb as pdb
 import numpy as np
+import models.residue
+
+LETTERS = {'ALA':'A','ARG':'R','ASN':'N','ASP':'D','CYS':'C','GLU':'E','GLN':'Q','GLY':'G',
+    'HIS':'H','ILE':'I','LEU':'L','LYS':'K','MET':'M','PHE':'F','PRO':'P','SER':'S','THR':'T',
+    'TRP':'W','TYR':'Y','VAL':'V'}
+
 
 def iter_chain_atoms(self):
     """
@@ -48,3 +54,15 @@ def get_ca(self):
         return self._ca
 
 pdb.Protein.get_ca = get_ca
+
+def write_fasta(self,path):
+    """
+    Write protein's residus into a given file(format FASTA) 
+    """
+    f = open(path,"w")
+    for chain in self.itervalues():
+        print(">"+chain.id,file=f)
+        print("".join([LETTERS[r.name] for r in chain.itervalues()]),file=f)
+    f.close()
+
+pdb.Protein.write_fasta = write_fasta
