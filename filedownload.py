@@ -42,7 +42,8 @@ def downloadFASTA(filename,outdir):
     print('Finished downloading FASTA')
 
 def downloadPDB(PDBid, outdir):
-    """Download the PDB file corresponding to an ID
+    """
+    Download the PDB file corresponding to an ID
     input1 : a list of 4 letter PDB ID
     input2 : the path of the directory containing the PDB files of the interologs
     output : a PDB file
@@ -54,3 +55,36 @@ def downloadPDB(PDBid, outdir):
         with open(outdir+id+".pdb","wb") as code:
             code.write(r.content)
         print('Finished downloading PDB file')
+        
+
+def FASTAfromPDB(PDBfile, indir, outdir):
+    """
+    Create a FASTA file from a PDB file reading the amino acids in the fourth column
+    input1 : the name of the PDB file
+    input2 : the directory containing the PDB file
+    input3 : the directory where the FASTA file will be stored
+    ouput : a FASTA file
+    """
+    
+    input_file = open(indir+PDBfile,"r")
+    output_file = open(outdir+PDBfile+".fasta","r+")
+    output_file.write(">"+PDBfile+"\n")
+
+    letters = {'ALA':'A','ARG':'R','ASN':'N','ASP':'D','CYS':'C','GLU':'E','GLN':'Q','GLY':'G','HIS':'H',
+               'ILE':'I','LEU':'L','LYS':'K','MET':'M','PHE':'F','PRO':'P','SER':'S','THR':'T','TRP':'W',
+               'TYR':'Y','VAL':'V'}
+
+    prev = '-1'
+        
+    for line in input_file:
+        toks = line.split()
+        if len(toks)<1: continue
+        if toks[0] != 'ATOM': continue
+        if toks[5] != prev:
+            output_file.write('%c' % letters[toks[3]])
+        prev = toks[5]
+
+    output_file.write('\n')
+    input_file.close()
+    return(outdir+PDBfile+".fasta")
+
