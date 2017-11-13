@@ -5,7 +5,7 @@ import dockerasmus.pdb as pdb
 import models.protein
 from models.complex import Complex
 import subprocess
-from functions import angles_generator
+from functions import angles_generator, angles_random
 
 logger = logging.getLogger('spam_application')
 
@@ -24,7 +24,16 @@ lig = pdb.Protein.from_pdb_file(args.lig)
 
 cpx = Complex(rec,lig)
 counter = 0
-print(cpx.rotations(0,0,0,0,0))
+ntotal = 0
+while counter<500:
+    l =angles_random()
+    A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
+    m = cpx.min_ca(A)
+    ntotal += 1
+    if m <6 and m>4:
+        counter += 1
+print(ntotal)
+
 assert False
 for l in angles_generator(1000):
     A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])

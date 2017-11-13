@@ -51,6 +51,13 @@ def angles_generator(k,deg=0,rot_lim=30,self_lim=30):
         n = self_lim * (1-deg)
         yield np.concatenate((np.random.sample(2)*m*2-m,np.random.sample(3)*2*n-n),axis=0)
 
+def angles_random(deg=0,rot_lim=30,self_lim=30):
+    m = rot_lim * (1-deg)
+    n = self_lim * (1-deg)
+    return np.concatenate((np.random.sample(2)*m*2-m,np.random.sample(3)*2*n-n),axis=0)
+
+
+
 if __name__ == '__main__':
     for l in angles_generator(10):
         print(l)
