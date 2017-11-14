@@ -72,14 +72,14 @@ def runAlign(file1,file2):
     
     
     delay = 600 #in seconds
-    print "Starting alignment"
+    print("Starting alignment")
     
     try:
         WebDriverWait(browser, delay).until(EC.title_is('InterEvolAlign results page'))
         #The browser will wait the delay or until the results page appears before anymore script is run
-        print "Page is ready!" #If the page appears, the rest of the script is run
+        print("Page is ready!") #If the page appears, the rest of the script is run
     except TimeoutException:
-        print "Loading took too much time!"
+        print("Loading took too much time!")
         browser.quit()
         return #Otherwise, the function is stopped
     
@@ -119,8 +119,8 @@ def runAlign(file1,file2):
         coll = row.find_elements_by_tag_name("td")[2] #note: index start from 0, 1 is col 2
         colr = row.find_elements_by_tag_name("td")[3]
         #prints text from the element
-        print(coll.text)
-        print(colr.text)
+        print((coll.text))
+        print((colr.text))
         Idllist.append(coll.text)
         Idrlist.append(colr.text)
     
@@ -131,7 +131,7 @@ def runAlign(file1,file2):
     If the identity with of the receptor and the ligand is 100%, it means that
     the complex already exists
     """
-    for i in xrange(0,len(PDBid)):
+    for i in range(0,len(PDBid)):
         if (Idllist[i] == "100%") and (Idrlist[i] == "100%"):
             result[PDBid[i]]=[Idllist[i],Idrlist[i]]
         else:
@@ -139,7 +139,7 @@ def runAlign(file1,file2):
         
     print(result)
     
-    print(browser.current_url)
+    print((browser.current_url))
     return(result)
         
 if __name__ == '__main__':
@@ -172,7 +172,7 @@ if __name__ == '__main__':
     print("Alignment function")
     dico = runAlign(ligf,recf)
     PDBid = []
-    for key in dico.keys(): 
+    for key in list(dico.keys()): 
         PDBid.append(key)
     
     filedownload.downloadPDB(PDBid, interDirectory)

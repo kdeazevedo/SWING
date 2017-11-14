@@ -37,7 +37,7 @@ def downloadFASTA(filename,outdir):
     print("Retrieving FASTA sequence of"+filename)
     url = "https://www.rcsb.org/pdb/download/downloadFastaFiles.do?structureIdList="+filename+"&compressionType=uncompressed"
     r = requests.get(url)
-    with open(outdir+filename+".fasta.txt", "wb") as code:
+    with open(os.path.join(outdir,filename+".fasta.txt"), "wb") as code:
         code.write(r.content)
     print('Finished downloading FASTA')
 
@@ -48,11 +48,11 @@ def downloadPDB(PDBid, outdir):
     input2 : the path of the directory containing the PDB files of the interologs
     output : a PDB file
     """
-    for id in PDBid:
-        print('Downloading PDB file'+id)
-        url = "https://files.rcsb.org/download/"+id+".pdb"
+    for pid in PDBid:
+        print('Downloading PDB file'+pid)
+        url = "https://files.rcsb.org/download/"+pid+".pdb"
         r = requests.get(url)
-        with open(outdir+id+".pdb","wb") as code:
+        with open(os.path.join(outdir,pid+".pdb"),"wb") as code:
             code.write(r.content)
         print('Finished downloading PDB file')
         
@@ -66,8 +66,9 @@ def FASTAfromPDB(PDBfile, indir, outdir):
     ouput : a FASTA file
     """
     
-    input_file = open(indir+PDBfile,"r")
-    output_file = open(outdir+PDBfile+".fasta","r+")
+    input_file = open(os.path.join(indir,PDBfile),"r")
+    output_file_path = os.path.join(outdir,PDBfile+".fasta")
+    output_file = open(output_file_path,"r+")
     output_file.write(">"+PDBfile+"\n")
 
     letters = {'ALA':'A','ARG':'R','ASN':'N','ASP':'D','CYS':'C','GLU':'E','GLN':'Q','GLY':'G','HIS':'H',
@@ -86,5 +87,6 @@ def FASTAfromPDB(PDBfile, indir, outdir):
 
     output_file.write('\n')
     input_file.close()
-    return(outdir+PDBfile+".fasta")
+    output_file.close()
+    return(output_file_path)
 
