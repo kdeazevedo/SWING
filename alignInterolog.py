@@ -33,6 +33,7 @@ def runProfit (dir, ligand, receptor, interolog, chainLigand, chainReceptor):
     #move to the pdb file directory
     os.chdir(dir)
     
+
     #name the future aligned pdb files
     intermediate = interolog.replace(".pdb","_aligned.pdb")
     output = ligand.replace(".pdb", "_aligned.pdb")
@@ -40,12 +41,17 @@ def runProfit (dir, ligand, receptor, interolog, chainLigand, chainReceptor):
     #write the script used by profit
     with open("profit_script", "w") as script :    
     
-        script.write("REFERENCE "+receptor+"\nMOBILE "+interolog+"\nALIGN "+chainReceptor+"*:A*\nITERATE\nFIT\nWRITE "+intermediate+"\nREFERENCE "+intermediate+"\nMOBILE "+ligand+"\nALIGN B*:"+chainLigand+"\nITERATE\nFIT\nWRITE "+output)
+        script.write("REFERENCE "+receptor+"\nMOBILE "+interolog+"\nALIGN "+chainReceptor+"*:A*\nITERATE\nFIT\nWRITE "+intermediate+"\nREFERENCE "+intermediate+"\nMOBILE "+ligand+"\nALIGN B*:"+chainLigand+"*\nITERATE\nFIT\nWRITE "+output)
     
     script.close()
     
+    #Configure Profit variables
+    subprocess.call("export HELPDIR=/home/marine/ProFitV3.1",shell=True)
+    subprocess.call("export DATADIR=/home/marine/ProfitV3.1",shell=True)
+
     #launch profit
-    subprocess.call("profit", stdin="profit_script")
+    subprocess.call("profit < profit_script",shell=True)
+    #subprocess.call("profit", stdin="profit_script")
 
     
     
