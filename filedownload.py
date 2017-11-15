@@ -64,10 +64,15 @@ def FASTAfromPDB(PDBfile, indir, outdir):
     input2 : the directory containing the PDB file
     input3 : the directory where the FASTA file will be stored
     ouput : a FASTA file
+	@originalauthor : github.com/jameslyons (source code modified)
     """
     
     input_file = open(os.path.join(indir,PDBfile),"r")
     output_file_path = os.path.join(outdir,PDBfile+".fasta")
+    try:
+        os.mknod(ouput_file_path)
+    except:
+		print("It seems that this file already exists")
     output_file = open(output_file_path,"r+")
     output_file.write(">"+PDBfile+"\n")
 
