@@ -56,9 +56,9 @@ recf = os.path.join(FASTADIR,REC+'.fasta')
 lig.write_fasta(ligf)
 rec.write_fasta(recf)
 assert False
-dico = runAlign(ligf,recf)
+dico = runAlign(recf,ligf,INTERDIR)
 PDBid = [k for k in dico.keys()]
-fd.downloadPDB(PDBid,INTERDIR)
+#fd.downloadPDB(PDBid,INTERDIR) #obsolete as file downloaded directly from InterEvol
 
 
 
