@@ -23,8 +23,8 @@ For the moment, the __main__ requires three arguments :
 
 !! CAUTION !!
 For the moment, the runAlign function is not temporized to not send a request
-to the InterEvol website will one is already running, and it is possible to send
-many requests at once to the website : do not do that or you'll risk IP-ban
+to the InterEvol website will one is already running, and it could be possible to send
+with some modifications many requests at once to the website : do not do that or you'll risk IP-ban
 from the website. Only use runAlign do to a request at once.
 !! CAUTION !!
 '''
@@ -92,6 +92,7 @@ def runAlign(file1,file2):
     interolog = "interid"  
     InterologList = browser.find_elements_by_xpath('//a[contains(@href, "%s")]' % interolog)        
     PDBid=list()
+    rchain=list()
     result = {}                
     
     """
@@ -99,8 +100,10 @@ def runAlign(file1,file2):
     """
     for element in InterologList:
         e=element.text
-        e=e[:4]
+        r = e[5:-1]
+        print(e,r)
         PDBid.append(e)
+        rchain.append(r)
     
     """
     First step is to find the table containing the interologs
@@ -135,14 +138,14 @@ def runAlign(file1,file2):
     """
     
     j=-1
-    for i in range(0,len(PDBid)):
-		j=i+1
-        if (Idllist[i] == "100%") and (Idrlist[i] == "100%"):
-			print("The complex seems to have already been caracterized !")
-			del PDBid[i]
-			j=i-1
+    for i in xrange(0,len(Idllist)):
+        j=j+1
+        if((Idllist[i] == "100%") and (Idrlist[i] == "100%")):
+            print("The complex seems to have already been caracterized !")
+            del PDBid[i]
+            j=i-1
         else:
-			result[PDBid[i]]=[Idllist[i],Idrlist[i]]
+            result[PDBid[j]]=[Idllist[i],Idrlist[i],rchain[i]]
         
     print(PDBid)    
     print(result)
@@ -181,12 +184,13 @@ if __name__ == '__main__':
         sys.exit()
         
     try:
-		#The name of the PDB file of the receptor
+        #The name of the PDB file of the receptor
         ligand = sys.argv[sys.argv.index("-receptor")+1]
         #The name of the PDB file of the ligand
         receptor = sys.argv[sys.argv.index("-ligand")+1]
     except:
         print("ERROR : specified file does not exist\n")
+        sys.exit()
         
     
     print("Creating FASTA sequence")
