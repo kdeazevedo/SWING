@@ -1,5 +1,6 @@
 import sys
 import filedownload
+import requests
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -17,8 +18,8 @@ For the moment, the __main__ requires three arguments :
     - dir1 : the directory containing the PDB files of the subunits
     - dir2 : the directory containing the FASTA sequences
     - dir3 : the directory containing the PDB files of the interologs
-    - ligand : the filename of the ligand
     - receptor : the filename of the receptor
+    - ligand : the filename of the ligand
 
 !! CAUTION !!
 For the moment, the runAlign function is not temporized to not send a request
@@ -71,7 +72,7 @@ def runAlign(file1,file2):
     browser.find_element_by_id('btnRun').click() 
     
     
-    delay = 600 #in seconds
+    delay = 1200 #in seconds
     print("Starting alignment")
     
     try:
@@ -130,17 +131,40 @@ def runAlign(file1,file2):
     The values of each keys is a list containing the identity percentages
     If the identity with of the receptor and the ligand is 100%, it means that
     the complex already exists
+    Therefore, the interolog is not downloaded and the PDB id is removed from the PDBid list
     """
-    for i in range(0,len(PDBid)):
-        if (Idllist[i] == "100%") and (Idrlist[i] == "100%"):
-            result[PDBid[i]]=[Idllist[i],Idrlist[i]]
-        else:
-            print("The complex seems to have already been caracterized !")
-        
-    print(result)
     
+    j=-1
+    for i in range(0,len(PDBid)):
+		j=i+1
+        if (Idllist[i] == "100%") and (Idrlist[i] == "100%"):
+			print("The complex seems to have already been caracterized !")
+			del PDBid[i]
+			j=i-1
+        else:
+			result[PDBid[i]]=[Idllist[i],Idrlist[i]]
+        
+    print(PDBid)    
+    print(result)
+
+    """
+    Downloads the PDB file of interologs from InterEvol
+    """
+    for element in PDBid:
+        url = "http://biodev.cea.fr/interevol/interevol.aspx?interid="+element+"#footer"
+        browser.get(url)
+        print(browser.current_url)
+        browser.implicitly_wait(5)
+        url = browser.find_element_by_id("downloadAlignment")
+        print(url)
+        url = url.get_attribute("href")
+        print(url)
+        r = requests.get(url)
+        with open(interDirectory+element[:4]+".pdb", "wb") as code:
+            code.write(r.content)
+        
+    print("Finished downloading")
     print((browser.current_url))
-    return(result)
         
 if __name__ == '__main__':
     print("Begin")
@@ -151,16 +175,16 @@ if __name__ == '__main__':
         fastaDirectory = sys.argv[sys.argv.index("-dir2")+1]
         #The directory where the PDB files of the interologs will be stored
         interDirectory = sys.argv[sys.argv.index("-dir3")+1]
-        #The name of the PDB file of the ligand
                 
     except:    
         print("ERROR: please enter the names of the directories\n")
         sys.exit()
         
     try:
-        ligand = sys.argv[sys.argv.index("-ligand")+1]
-        #The name of the PDB file of the receptor
-        receptor = sys.argv[sys.argv.index("-receptor")+1]
+		#The name of the PDB file of the receptor
+        ligand = sys.argv[sys.argv.index("-receptor")+1]
+        #The name of the PDB file of the ligand
+        receptor = sys.argv[sys.argv.index("-ligand")+1]
     except:
         print("ERROR : specified file does not exist\n")
         
@@ -170,11 +194,5 @@ if __name__ == '__main__':
     recf = filedownload.FASTAfromPDB(receptor, subunitsDirectory, fastaDirectory)
     
     print("Alignment function")
-    dico = runAlign(ligf,recf)
-    PDBid = []
-    for key in list(dico.keys()): 
-        PDBid.append(key)
+    dico = runAlign(recf,ligf)
     
-    filedownload.downloadPDB(PDBid, interDirectory)
-    
-
