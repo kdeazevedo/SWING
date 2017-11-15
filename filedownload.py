@@ -70,9 +70,9 @@ def FASTAfromPDB(PDBfile, indir, outdir):
     input_file = open(os.path.join(indir,PDBfile),"r")
     output_file_path = os.path.join(outdir,PDBfile+".fasta")
     try:
-        os.mknod(ouput_file_path)
+        os.mknod(output_file_path)
     except:
-		print("It seems that this file already exists")
+        print("It seems that this file already exists")
     output_file = open(output_file_path,"r+")
     output_file.write(">"+PDBfile+"\n")
 
