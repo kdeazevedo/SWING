@@ -135,6 +135,7 @@ def runAlign(file1,file2):
     If the identity with of the receptor and the ligand is 100%, it means that
     the complex already exists
     Therefore, the interolog is not downloaded and the PDB id is removed from the PDBid list
+    The values also contains the homologous chain of the receptor on the interolog complex
     """
     
     j=-1
@@ -198,5 +199,13 @@ if __name__ == '__main__':
     recf = filedownload.FASTAfromPDB(receptor, subunitsDirectory, fastaDirectory)
     
     print("Alignment function")
+    
+    """
+    Keys of dictionnary : ensemble of interologs found by InterEvol (format example : 2za4_AB)
+    Values of dictionnary : a list containing in order 
+		1) The sequence identity with the receptor in percentage
+		2) The sequence identity with the ligand in percentage
+		3) The homologous chain on the interolog corresponding to the receptor given in input
+	"""
     dico = runAlign(recf,ligf)
     
