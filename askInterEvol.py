@@ -30,7 +30,7 @@ from the website. Only use runAlign do to a request at once.
 !! CAUTION !!
 '''
     
-def runAlign(file1,file2,interDirectory):
+def runAlign(file1,file2,interDir):
     """
     Send a alignment request to the InterEvol database
     input : two FASTA files
@@ -169,7 +169,7 @@ def runAlign(file1,file2,interDirectory):
         url = url.get_attribute("href")
         print(url)
         r = requests.get(url)
-        with open(os.path.join(interDirectory,element+".pdb"), "wb") as code:
+        with open(os.path.join(interDir,element+".pdb"), "wb") as code:
             code.write(r.content)
         
     print("Finished downloading")
