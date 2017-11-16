@@ -18,7 +18,7 @@ def iter_chain_atoms(self):
 
 pdb.Protein.iter_chain_atoms = iter_chain_atoms
 
-def write_atoms(self,path):  
+def write_atoms(self,path,pos=None):  
     """
     A naive protein's atoms' records printer.
 
@@ -27,8 +27,12 @@ def write_atoms(self,path):
     """
     atom_template = '{:7}{:4d}  {:4}{:3} {:1} {:3d}      {:5.3f}  {:5.3f}  {:5.3f}'
     out = open(path,'w')
-    for atom, c in self.iter_chain_atoms():
-        print(atom_template.format("ATOM",atom.id,atom.name,atom.residue.name,c,atom.residue.id,atom.x,atom.y,atom.z), file=out)
+    for idx, (atom, c) in enumerate(self.iter_chain_atoms()):
+        if pos is not None:
+            l = pos[idx]
+        else:
+            l = [atom.x,atom.y,atom.z]
+        print(atom_template.format("ATOM",atom.id,atom.name,atom.residue.name,c,atom.residue.id,l[0],l[1],l[2]), file=out)
     print("END", file=out)
     out.close()
 

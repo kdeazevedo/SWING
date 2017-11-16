@@ -47,7 +47,8 @@ INTERDIR = args.inter_dir
 pathlib.Path(FASTADIR).mkdir(parents=True, exist_ok=True) 
 pathlib.Path(INTERDIR).mkdir(parents=True, exist_ok=True) 
 
-
+n_samples = int(args.n)
+n_digit = len(args.n)
 
 
 ################################
@@ -59,14 +60,15 @@ lig.write_fasta(ligf)
 rec.write_fasta(recf)
 dico = runAlign(recf,ligf,INTERDIR)
 PDBid = [k for k in dico.keys()]
+print(dico)
 
 
 ################################
 ###    Protein Alignment     ###
 ################################
 
-#for key, value in dico.items():
-#    runProfit()
+for key, value in dico.items():
+    runProfit()
 
 ################################
 ###  Alignment with Profit   ###
@@ -87,19 +89,9 @@ for key in dico.keys():
 ###         Sampling         ###
 ################################
 
-#subprocess.call(['cp',args.rec,'Proteins'])
-#counter = 0
-#ntotal = 0
-#while counter<500:
-#    l =angles_random()
-#    A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
-#    m = cpx.min_ca(A)
-#    ntotal += 1
-#    if m <6 and m>4:
-#        counter += 1
-#print(ntotal)
+subprocess.call(['cp',args.rec,'Proteins'])
 
-for l in angles_generator(int(args.n)):
+for idx,l in enumerate(angles_generator(n_samples)):
     A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
     D = cpx.ca_dist(A)
     i,j = np.unravel_index(D.argmin(), D.shape)
@@ -108,20 +100,9 @@ for l in angles_generator(int(args.n)):
         print(m,'--')
         A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],5)
         print(np.min(cpx.ca_dist(A)))
+    cpx.lig.write_atoms('Proteins/B'+'{:05d}'.format(idx)+'.pdb',A)
     
-print(counter)
-assert False
 
-lig.write_atoms('Proteins/1JP3_B_rota12.pdb')
-subprocess.call(["python3", 'Minimizer/runMini.py', '-rec','Proteins/1JP3_A.pdb', '-lig','Proteins/1JP3_B_rota12.pdb'])
+for k in range(n_samples):
+    subprocess.call(["python3", 'Minimizer/runMini.py', '-rec','Proteins/'+REC+'.pdb', '-lig','Proteins/B'+'{:05d}'.format(k)+'.pdb'])
 
-
-# Multiple templates
-positions = download(rec,lig)
-
-for pos in positions:
-    for t in translation():
-        for r in rotation():
-            lig.trans_rotate(trans=t,rotate=r)
-            lig.write_atoms('Proteins/ligand.pdb')
-            subprocess.call(["python3", 'Minimizer/runMini.py', '-rec',rec.path(), '-lig',lig.path()])
