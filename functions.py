@@ -56,6 +56,12 @@ def angles_random(deg=0,rot_lim=30,self_lim=30):
     n = self_lim * (1-deg)
     return np.concatenate((np.random.sample(2)*m*2-m,np.random.sample(3)*2*n-n),axis=0)
 
+def vec_to_dist(a,b,d):
+    """
+    Return vector b->c sush that ||ac|| = d and a->b // a->c
+    """
+    m = np.linalg.norm(b-a)
+    return ((d-m)*b+(m-d)*a)/m
 
 
 if __name__ == '__main__':

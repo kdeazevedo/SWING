@@ -19,12 +19,12 @@ class Complex():
         self.lig_quat = quat.as_quat_array(np.c_[np.zeros(lig.atom_positions().shape[0]),lig.atom_positions()])
 
 
-    def min_ca(self,lig):
+    def ca_dist(self,lig):
         """
         Return the minimum distance between receptor's and ligand's carbon alpha
         """
         # TODO : Use ann when matrix size is large
-        return np.min(cdist(self.rec.get_ca(),lig[self.lig.get_ca_ind()]))
+        return cdist(self.rec.get_ca(),lig[self.lig.get_ca_ind()])
 
     def rotations(self,theta,phi,alpha,beta,gamma):
         """
