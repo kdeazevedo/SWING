@@ -69,12 +69,15 @@ print(dico)
 ################################
 ###  Alignment with Profit   ###
 ################################
+
+
 for key in dico.keys():
 	#print(key)
     #print(dico[key])
     liste = dico[key]
     #print(liste[3],liste[2])
-    runProfit(lig.path, rec.oath, os.path.join(INTERDIR,key+".pdb"), liste[3], liste[2])
+    deg = min(int(liste[0][:-1]),int(liste[1][:-1]))
+    runProfit(lig.path, rec.path, os.path.join(INTERDIR,key+".pdb"), liste[3], liste[2])
 
 
 
@@ -88,7 +91,7 @@ cpx = Complex(rec,lig_aligned)
 ################################
 
 
-for idx,l in enumerate(angles_generator(n_samples)):
+for idx,l in enumerate(angles_generator(n_samples,deg=deg)):
     A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
     D = cpx.ca_dist(A)
     i,j = np.unravel_index(D.argmin(), D.shape)
