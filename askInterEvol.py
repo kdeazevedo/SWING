@@ -1,6 +1,7 @@
 import sys
 import filedownload
 import requests
+import os
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -29,7 +30,7 @@ from the website. Only use runAlign do to a request at once.
 !! CAUTION !!
 '''
     
-def runAlign(file1,file2):
+def runAlign(file1,file2,interDirectory):
     """
     Send a alignment request to the InterEvol database
     input : two FASTA files
@@ -93,6 +94,7 @@ def runAlign(file1,file2):
     InterologList = browser.find_elements_by_xpath('//a[contains(@href, "%s")]' % interolog)        
     PDBid=list()
     rchain=list()
+    lchain=list()
     result = {}                
     
     """
@@ -101,9 +103,11 @@ def runAlign(file1,file2):
     for element in InterologList:
         e=element.text
         r = e[5:-1]
-        print(e,r)
+        l = e[6:]
+        print(e,r,l)
         PDBid.append(e)
         rchain.append(r)
+        lchain.append(l)
     
     """
     First step is to find the table containing the interologs
@@ -135,18 +139,19 @@ def runAlign(file1,file2):
     If the identity with of the receptor and the ligand is 100%, it means that
     the complex already exists
     Therefore, the interolog is not downloaded and the PDB id is removed from the PDBid list
-    The values also contains the homologous chain of the receptor on the interolog complex
+    The values also contains the homologous chain of the receptor
+    and the ligand on the interolog complex
     """
     
     j=-1
-    for i in xrange(0,len(Idllist)):
+    for i in range(0,len(Idllist)):
         j=j+1
         if((Idllist[i] == "100%") and (Idrlist[i] == "100%")):
             print("The complex seems to have already been caracterized !")
             del PDBid[i]
             j=i-1
         else:
-            result[PDBid[j]]=[Idllist[i],Idrlist[i],rchain[i]]
+            result[PDBid[j]]=[Idllist[i],Idrlist[i],rchain[i],lchain[i]]
         
     print(PDBid)    
     print(result)
@@ -164,11 +169,12 @@ def runAlign(file1,file2):
         url = url.get_attribute("href")
         print(url)
         r = requests.get(url)
-        with open(interDirectory+element[:4]+".pdb", "wb") as code:
+        with open(os.path.join(interDirectory,element+".pdb"), "wb") as code:
             code.write(r.content)
         
     print("Finished downloading")
     print((browser.current_url))
+    return(result)
         
 if __name__ == '__main__':
     print("Begin")
@@ -206,6 +212,7 @@ if __name__ == '__main__':
 		1) The sequence identity with the receptor in percentage
 		2) The sequence identity with the ligand in percentage
 		3) The homologous chain on the interolog corresponding to the receptor given in input
+	    4) The homologous chain on the interolog corresponding to the ligand given in input
 	"""
-    dico = runAlign(recf,ligf)
+    dico = runAlign(recf,ligf,interDirectory)
     

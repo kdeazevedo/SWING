@@ -23,7 +23,7 @@ parser.add_argument('-n',help='Number of sampling')
 parser.add_argument('-fasta_dir',default='FASTA',help='The directory where the FASTA sequences will be stored')
 parser.add_argument('-inter_dir',default='INTER',help='The directory where the interologs will be stored')
 
-logger.DEBUG('Start parsing arguments')
+#logger.DEBUG('Start parsing arguments')
 args = parser.parse_args()
 
 
@@ -55,7 +55,7 @@ ligf = os.path.join(FASTADIR,LIG+'.fasta')
 recf = os.path.join(FASTADIR,REC+'.fasta')
 lig.write_fasta(ligf)
 rec.write_fasta(recf)
-assert False
+#assert False
 dico = runAlign(recf,ligf,INTERDIR)
 PDBid = [k for k in dico.keys()]
 #fd.downloadPDB(PDBid,INTERDIR) #obsolete as file downloaded directly from InterEvol

@@ -5,17 +5,18 @@ Created on 13 nov. 2017
 
 Purpose : use Profit to align two complexes from PDB files. Require six argument :
     - dir : the pdb file directory
-    - interolog : the PDB file of the interolog complex
+    - interolog : the PDB directory of the interolog complex
     - ligand : the PDB file of the ligand
     - receptor : the PDB file of the receptor
-    - chainReceptor : the name of the receptor chain in the interolog complex
-    - chainLigand : the name of the ligand chain in the interolog complex
+    - fasta : the fasta directory
 Output : a pdb file of the ligand in its initial position
-Use (example) : python alignInterolog.py -dir pdb_input -ligand 1AY7_l_sep.pdb -receptor 1AY7_r.pdb -interolog 2za4.pdb -chainLigand B -chainReceptor A
+Use (example) : python alignInterolog.py -dir pdb_input -ligand 1AY7_l_sep.pdb -receptor 1AY7_r.pdb -interolog absolutepath -fasta absolutepath
 '''
 import os
 import sys
 import subprocess
+import askInterEvol
+import filedownload
    
     
 def runProfit (dir, ligand, receptor, interolog, chainLigand, chainReceptor):
@@ -76,19 +77,22 @@ if __name__ == '__main__':
     try :
         inter = sys.argv[sys.argv.index("-interolog")+1]
     except :
-        print("ERROR : specified interolog file does not exist\n")
-        
+        print("ERROR : specified interolog directory does not exist\n")
     try :
-        chainLig = sys.argv[sys.argv.index("-chainLigand")+1]
+        fasta = sys.argv[sys.argv.index("-fasta")+1]
     except :
-        print("ERROR : unspecified ligand chain\n")
-        
-    try :
-        chainRec = sys.argv[sys.argv.index("-chainReceptor")+1]
-    except :
-        print("ERROR : unspecified receptor chain\n")
+        print("ERROR : specified fasta directory does not exist\n")
+
+    ligf = filedownload.FASTAfromPDB(lig, dir, fasta)
+    recf = filedownload.FASTAfromPDB(rec, dir, fasta)
     
-    runProfit(dir, lig, rec, inter, chainLig, chainRec)
+    dico = askInterEvol.runAlign(recf, ligf, inter)
+    for key in dico.keys():
+        print(key)
+        print(dico[key])
+        liste = dico[key]
+        print(liste[3],liste[2])
+        runProfit(dir, lig, rec, os.path.join(inter,key+".pdb"), liste[3], liste[2])
         
         
     
