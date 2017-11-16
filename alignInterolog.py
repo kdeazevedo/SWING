@@ -17,7 +17,6 @@ import sys
 import subprocess
 import askInterEvol
 import filedownload
-import RMSD
    
     
 def runProfit (dir, ligand, receptor, interolog, chainLigand, chainReceptor):
@@ -33,7 +32,7 @@ def runProfit (dir, ligand, receptor, interolog, chainLigand, chainReceptor):
     '''    
     
     #move to the pdb file directory
-    os.chdir(dir)
+    #os.chdir(dir) useless with the absolute path
     
 
     #name the future aligned pdb files
@@ -48,15 +47,21 @@ def runProfit (dir, ligand, receptor, interolog, chainLigand, chainReceptor):
     script.close()
     
     #Configure Profit variables
-    subprocess.call("export HELPDIR=/home/kazevedo/Telechargements/ProFitV3.1",shell=True)
-    subprocess.call("export DATADIR=/home/kazevedo/Telechargements/ProfitV3.1",shell=True)
+    proFit=subprocess.check_output("find ~ -type d -name .\* -prune -or -name ProFitV3.1 -print", shell=True)
+    env = os.environ.copy()
+    env["HELPDIR"] = proFit
+    env["DATADIR"] = proFit
+	#print(env)
+	
 
     #launch profit
-    subprocess.call("profit < profit_script",shell=True)
-    #subprocess.call("profit", stdin="profit_script")
+    #subprocess.call("profit < profit_script",shell=True)
+    script = open("profit_script","r")
+    p=subprocess.Popen(["profit"],stdin=subprocess.PIPE,stdout=sys.stdout,stderr=sys.stderr,env=env)
+    p.communicate(input=script.read()+"QUIT")
 
     
-    
+
     
 if __name__ == '__main__':
     
@@ -93,9 +98,5 @@ if __name__ == '__main__':
         print(dico[key])
         liste = dico[key]
         print(liste[3],liste[2])
-        runProfit(dir, lig, rec, os.path.join(inter,key+".pdb"), liste[3], liste[2])
+        runProfit(dir, lig, rec, os.path.join(inter,key+".pdb"), liste[3], liste[2])     
         
-        
-    
-    
-    

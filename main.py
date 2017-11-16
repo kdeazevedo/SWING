@@ -64,6 +64,21 @@ PDBid = [k for k in dico.keys()]
 
 
 ################################
+###  Alignment with Profit   ###
+################################
+PDBDIR=os.path.dirname(lig)
+for key in dico.keys():
+	#print(key)
+    #print(dico[key])
+    liste = dico[key]
+    #print(liste[3],liste[2])
+    runProfit(PDBDIR, lig, rec, os.path.join(INTERDIR,key+".pdb"), liste[3], liste[2])
+
+
+
+
+
+################################
 ###         Sampling         ###
 ################################
 
