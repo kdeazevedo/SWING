@@ -17,6 +17,7 @@ import sys
 import subprocess
 import askInterEvol
 import filedownload
+import RMSD
    
     
 def runProfit (dir, ligand, receptor, interolog, chainLigand, chainReceptor):
@@ -47,8 +48,8 @@ def runProfit (dir, ligand, receptor, interolog, chainLigand, chainReceptor):
     script.close()
     
     #Configure Profit variables
-    subprocess.call("export HELPDIR=/home/marine/ProFitV3.1",shell=True)
-    subprocess.call("export DATADIR=/home/marine/ProfitV3.1",shell=True)
+    subprocess.call("export HELPDIR=/home/kazevedo/Telechargements/ProFitV3.1",shell=True)
+    subprocess.call("export DATADIR=/home/kazevedo/Telechargements/ProfitV3.1",shell=True)
 
     #launch profit
     subprocess.call("profit < profit_script",shell=True)
