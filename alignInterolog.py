@@ -19,7 +19,7 @@ import askInterEvol
 import filedownload
    
     
-def runProfit (dir, ligand, receptor, interolog, chainLigand, chainReceptor):
+def runProfit (ligand, receptor, interolog, chainLigand, chainReceptor):
     '''
     use Profit to align and fit the pdb structures
     input :

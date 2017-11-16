@@ -35,11 +35,14 @@ assert os.path.isfile(args.rec), "Recepter file not found"
 assert os.path.isfile(args.lig), "Ligand file not found"
 LIG = re.match(PDB,pathlib.PurePath(args.lig).name).group(1)
 REC = re.match(PDB,pathlib.PurePath(args.rec).name).group(1)
+subprocess.call(['cp',args.rec,'Proteins'])
+subprocess.call(['cp',args.lig,'Proteins'])
 rec = pdb.Protein.from_pdb_file(args.rec)
 lig = pdb.Protein.from_pdb_file(args.lig)
 rec.name = REC
+rec.path = os.path.join('Proteins',REC+'.pdb')
 lig.name = LIG
-cpx = Complex(rec,lig)
+lig.path = os.path.join('Proteins',LIG+'.pdb')
 
 # Create if fasta or interolog directory doesn't exist
 FASTADIR = args.fasta_dir
@@ -64,32 +67,26 @@ print(dico)
 
 
 ################################
-###    Protein Alignment     ###
-################################
-
-for key, value in dico.items():
-    runProfit()
-
-################################
 ###  Alignment with Profit   ###
 ################################
-PDBDIR=os.path.dirname(lig)
 for key in dico.keys():
 	#print(key)
     #print(dico[key])
     liste = dico[key]
     #print(liste[3],liste[2])
-    runProfit(PDBDIR, lig, rec, os.path.join(INTERDIR,key+".pdb"), liste[3], liste[2])
+    runProfit(lig.path, rec.oath, os.path.join(INTERDIR,key+".pdb"), liste[3], liste[2])
 
 
 
 
+lig_aligned = pdb.Protein.from_pdb_file('Proteins/'+LIG+'_aligned.pdb')
+lig_aligned.name = LIG
+cpx = Complex(rec,lig_aligned)
 
 ################################
 ###         Sampling         ###
 ################################
 
-subprocess.call(['cp',args.rec,'Proteins'])
 
 for idx,l in enumerate(angles_generator(n_samples)):
     A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
