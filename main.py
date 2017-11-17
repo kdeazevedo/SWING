@@ -62,8 +62,6 @@ recf = os.path.join(FASTADIR,REC+'.fasta')
 lig.write_fasta(ligf)
 rec.write_fasta(recf)
 dico = runAlign(recf,ligf,INTERDIR)
-PDBid = [k for k in dico.keys()]
-print(dico)
 
 
 ################################
@@ -97,12 +95,11 @@ for idx,l in enumerate(angles_generator(n_samples,deg=deg)):
     i,j = np.unravel_index(D.argmin(), D.shape)
     m = D[i,j]
     if m <5:
-        print(m,'--')
         A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],5)
-        print(np.min(cpx.ca_dist(A)))
     cpx.lig.write_atoms('Proteins/B'+'{:05d}'.format(idx)+'.pdb',A)
     
 
 for k in range(n_samples):
     subprocess.call(["python3", 'Minimizer/runMini.py', '-rec','Proteins/'+REC+'.pdb', '-lig','Proteins/B'+'{:05d}'.format(k)+'.pdb'])
-
+    out_file = 'pdb_mini/{}_B{:05d}_min1.pdb'.format(cpx.rec.name,k)
+    subprocess.call("sed '1d' "+out_file+" > tmp.txt; cat "+rec.path+ " tmp.txt > OUTPUT/"+cpx.rec.name+"_B{:05d}.pdb".format(k)+"; rm tmp.txt",shell=True)
