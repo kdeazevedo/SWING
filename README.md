@@ -1,4 +1,4 @@
-# 2017-2018_Equipe10, I-DockB'tr
+# 2017-2018_Equipe10, Sampling
 Template based protein docking written in Python3. The program is developed by Kévin De Azevedo, Marine Duhamel, and Hua-Ting Yao (Paris 11)
 ## Abstract
 
