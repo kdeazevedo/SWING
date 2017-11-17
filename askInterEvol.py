@@ -6,6 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
 
 
 '''
@@ -30,7 +31,7 @@ from the website. Only use runAlign do to a request at once.
 !! CAUTION !!
 '''
     
-def runAlign(file1,file2,interDir):
+def runAlign(file1,file2,interDirectory):
     """
     Send a alignment request to the InterEvol database
     input : two FASTA files
@@ -59,7 +60,7 @@ def runAlign(file1,file2,interDir):
     For that, simply use the command "pip install selenium==2.53.6
     """
     browser = webdriver.Firefox()
-    browser.implicitly_wait(5)
+    browser.implicitly_wait(10)
     browser.get(url)
     
     """
@@ -73,7 +74,7 @@ def runAlign(file1,file2,interDir):
     browser.find_element_by_id('btnRun').click() 
     
     
-    delay = 1200 #in seconds
+    delay = 3600 #in seconds
     print("Starting alignment")
     
     try:
@@ -84,9 +85,7 @@ def runAlign(file1,file2,interDir):
         print("Loading took too much time!")
         browser.quit()
         return #Otherwise, the function is stopped
-    
-    browser.implicitly_wait(5)
-    
+        
     """
     Looks for a href tag in the source code with "interid" (interology)
     """
@@ -162,15 +161,16 @@ def runAlign(file1,file2,interDir):
     for element in PDBid:
         url = "http://biodev.cea.fr/interevol/interevol.aspx?interid="+element+"#footer"
         browser.get(url)
+        WebDriverWait(browser, 10).until(EC.text_to_be_present_in_element((By.ID, "downloadAlignment"), element[:4]))
         print(browser.current_url)
-        browser.implicitly_wait(5)
-        url = browser.find_element_by_id("downloadAlignment")
-        print(url)
-        url = url.get_attribute("href")
-        print(url)
-        r = requests.get(url)
-        with open(os.path.join(interDir,element+".pdb"), "wb") as code:
+        tag = browser.find_element_by_id("downloadAlignment")
+        WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "downloadAlignment")))
+        url2 = tag.get_attribute("href")
+        print(url2)
+        r = requests.get(url2)
+        with open(os.path.join(interDirectory,element+".pdb"), "wb") as code:
             code.write(r.content)
+        
         
     print("Finished downloading")
     print((browser.current_url))
