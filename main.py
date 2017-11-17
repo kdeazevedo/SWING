@@ -19,11 +19,10 @@ logging.basicConfig(format=FORMAT,level=logging.DEBUG)
 logger = logging.getLogger('main')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-rec',help='Recepter\'s file path')
-parser.add_argument('-lig',help='Ligand\'s file path')
+parser.add_argument('-rec',required=True,help='Recepter\'s file path')
+parser.add_argument('-lig',required=True,help='Ligand\'s file path')
 parser.add_argument('-n',help='Number of sampling')
-parser.add_argument('-fasta_dir',default='FASTA',help='The directory where the FASTA sequences will be stored')
-parser.add_argument('-inter_dir',default='INTER',help='The directory where the interologs will be stored')
+parser.add_argument('-o',default='out',help='The directory where program\'s output sotres')
 
 logger.debug('Start parsing arguments')
 args = parser.parse_args()
@@ -44,9 +43,12 @@ rec.path = os.path.join('Proteins',REC+'.pdb')
 lig.name = LIG
 lig.path = os.path.join('Proteins',LIG+'.pdb')
 
-# Create if fasta or interolog directory doesn't exist
-FASTADIR = args.fasta_dir
-INTERDIR = args.inter_dir
+# Define working directories
+OUTDIR = args.o
+pathlib.Path(OUTDIR).mkdir(parents=True, exist_ok=True)
+FASTADIR = os.path.join(OUTDIR,'FASTA')
+INTERDIR = os.path.join(OUTDIR,'INTER')
+PRODIR = os.path.join(OUTDIR,'proteins')
 pathlib.Path(FASTADIR).mkdir(parents=True, exist_ok=True) 
 pathlib.Path(INTERDIR).mkdir(parents=True, exist_ok=True) 
 
