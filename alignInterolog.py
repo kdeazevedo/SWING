@@ -40,25 +40,22 @@ def runProfit (ligand, receptor, interolog, chainLigand, chainReceptor):
     output = ligand.replace(".pdb", "_aligned.pdb")
     
     #write the script used by profit
-    with open("profit_script", "w") as script :    
     
-        script.write("REFERENCE "+receptor+"\nMOBILE "+interolog+"\nALIGN "+chainReceptor+"*:A*\nITERATE\nFIT\nWRITE "+intermediate+"\nREFERENCE "+intermediate+"\nMOBILE "+ligand+"\nALIGN B*:"+chainLigand+"*\nITERATE\nFIT\nWRITE "+output)
+    script="REFERENCE "+receptor+"\nMOBILE "+interolog+"\nALIGN "+chainReceptor+"*:A*\nITERATE\nFIT\nWRITE "+intermediate+"\nREFERENCE "+intermediate+"\nMOBILE "+ligand+"\nALIGN B*:"+chainLigand+"*\nITERATE\nFIT\nWRITE "+output+"\nQUIT"
     
-    script.close()
     
     #Configure Profit variables
-    proFit=subprocess.check_output("find ~ -type d -name .\* -prune -or -name ProFitV3.1 -print", shell=True)
+    proFit=subprocess.check_output("find ~ -type d -name .\* -prune -or -name ProFitV3.1 -print", shell=True)[:-1]
     env = os.environ.copy()
     env["HELPDIR"] = proFit
     env["DATADIR"] = proFit
 	#print(env)
 	
-
+    print(env)
     #launch profit
     #subprocess.call("profit < profit_script",shell=True)
-    script = open("profit_script","r")
     p=subprocess.Popen(["profit"],stdin=subprocess.PIPE,stdout=sys.stdout,stderr=sys.stderr,env=env)
-    p.communicate(input=script.read()+"QUIT")
+    p.communicate(input=script.encode(encoding="UTF-8"))
 
     
 

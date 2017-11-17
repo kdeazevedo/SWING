@@ -25,7 +25,7 @@ def write_atoms(self,path,pos=None):
     Keyword arguments:
     path -- the output file's path
     """
-    atom_template = '{:7}{:4d}  {:4}{:3} {:1} {:3d}      {:5.3f}  {:5.3f}  {:5.3f}'
+    atom_template = '{:6}{:5d}  {:3} {:3} {:1}{:4d}    {:8.3f}{:8.3f}{:8.3f}'
     out = open(path,'w')
     for idx, (atom, c) in enumerate(self.iter_chain_atoms()):
         if pos is not None:
