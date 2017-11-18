@@ -17,7 +17,9 @@ def writeMini(inlines, receptor, ligand):
         ligand = sep.join(ligand)
     outfile = open("%s/minimizer/run_mini/runMini.sh"%(workdir), "w+")
     for line in inlines:
-        if line[0:13] == "foreach PROT ":
+        if line[0:10] == "set SEPDIR":
+            outfile.write("set SEPDIR = {}".format(os.path.join(filedir,'Proteins')))
+        elif line[0:13] == "foreach PROT ":
             outfile.write("foreach PROT (\'\\ls $SEPDIR/%s\')\n"%(receptor))
         elif line[0:13] == "foreach PROTT":
             outfile.write("foreach PROTT (\'\\ls $SEPDIR/%s\')\n"%(ligand))
@@ -41,7 +43,9 @@ def writeBuilder(inlines, receptor, ligand):
         ligand = sep.join(ligand)
     outfile = open("%s/minimizer/run_builder/rctrPDB.sh"%(workdir), "w+")
     for line in inlines:
-        if line[0:13] == "foreach PROT ":
+        if line[0:11] == "set PROTDIR":
+            outfile.write("set PROTDIR = {}".format(os.path.join(filedir,'Proteins')))
+        elif line[0:13] == "foreach PROT ":
             outfile.write("foreach PROT (%s)\n"%(receptor))
         elif line[0:13] == "foreach PROTT":
             outfile.write("foreach PROTT (%s)\n"%(ligand))
@@ -70,7 +74,8 @@ print(rec)
 #    workdir = args.wd
 #else:
 filedir = args.o
-workdir = os.path.join(os.getcwd(),'Minimizer')
+workdir = os.path.abspath(os.path.join(__file__,os.pardir))
+print('mini',workdir)
 
 if args.conf:
     conf = args.conf
