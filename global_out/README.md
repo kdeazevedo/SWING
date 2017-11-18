@@ -1,1 +1,0 @@
-Minimizer .dat output
