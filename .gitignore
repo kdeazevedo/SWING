@@ -3,3 +3,5 @@ global_out/*.dat
 *.pdb
 *.sw[op]
 Minimizer/minimizer/
+out/
+geckodriver.log
