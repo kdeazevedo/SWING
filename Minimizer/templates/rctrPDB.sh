@@ -1,6 +1,6 @@
 #!/bin/csh
 
-set PROTDIR = ../../../Proteins #pdb_files
+set PROTDIR = ../../../out/Proteins #pdb_files
 
 #conformations to build 
 foreach DOCKPOS (1)

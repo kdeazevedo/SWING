@@ -17,7 +17,9 @@ def writeMini(inlines, receptor, ligand):
         ligand = sep.join(ligand)
     outfile = open("%s/minimizer/run_mini/runMini.sh"%(workdir), "w+")
     for line in inlines:
-        if line[0:13] == "foreach PROT ":
+        if line[0:10] == "set SEPDIR":
+            outfile.write("set SEPDIR = {}".format(os.path.join(filedir,'Proteins')))
+        elif line[0:13] == "foreach PROT ":
             outfile.write("foreach PROT (\'\\ls $SEPDIR/%s\')\n"%(receptor))
         elif line[0:13] == "foreach PROTT":
             outfile.write("foreach PROTT (\'\\ls $SEPDIR/%s\')\n"%(ligand))
@@ -34,13 +36,16 @@ def writeBuilder(inlines, receptor, ligand):
         Input: template content for the reconstruction script stored in inlines, recpetor's name, ligand's name
         Output: rctrPDB.sh 
     """
+    print(receptor)
     if ligand == receptor:
         sep = ""
         ligand = (receptor, "_1")
         ligand = sep.join(ligand)
     outfile = open("%s/minimizer/run_builder/rctrPDB.sh"%(workdir), "w+")
     for line in inlines:
-        if line[0:13] == "foreach PROT ":
+        if line[0:11] == "set PROTDIR":
+            outfile.write("set PROTDIR = {}".format(os.path.join(filedir,'Proteins')))
+        elif line[0:13] == "foreach PROT ":
             outfile.write("foreach PROT (%s)\n"%(receptor))
         elif line[0:13] == "foreach PROTT":
             outfile.write("foreach PROTT (%s)\n"%(ligand))
@@ -59,16 +64,18 @@ parser.add_argument("-rec", required = True, help = "pdb filename of the recepto
 parser.add_argument("-lig", required = True, help = "pdb filename of the ligand protein (please store all the pdb (lig and rec) in Proteins/)")
 #parser.add_argument("-wd", required = False, help = "path to working directory (optional)")
 parser.add_argument("-conf", required = False, help = "protein conformation index (optional)")
+parser.add_argument('-o', required=True,help='Output folder')
 args = parser.parse_args()
 
 rec = args.rec
 lig = args.lig
-
+print(rec)
 #if args.wd:
 #    workdir = args.wd
 #else:
-filedir = os.getcwd()
-workdir = os.path.join(filedir,'Minimizer')
+filedir = args.o
+workdir = os.path.abspath(os.path.join(__file__,os.pardir))
+print('mini',workdir)
 
 if args.conf:
     conf = args.conf

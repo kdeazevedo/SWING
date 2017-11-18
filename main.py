@@ -32,25 +32,26 @@ PDB = r'(\w+).pdb'
 # Check if files exist
 assert os.path.isfile(args.rec), "Recepter file not found"
 assert os.path.isfile(args.lig), "Ligand file not found"
+
+# Create output folders
+pathlib.Path(args.o).mkdir(parents=True, exist_ok=True)
+fld_lst = [('FASTA','Fasta'),('INTER','Inter'),('CPX','Complex'),('PRO','Proteins'),('PMIN','pdb_mini'),('GOUT','global_out')]
+FLD = {'OUT':os.path.abspath(args.o)}
+for d,n in fld_lst:
+    t = os.path.join(FLD['OUT'],n)
+    pathlib.Path(t).mkdir(parents=True,exist_ok=True)
+    FLD[d] = t
+
 LIG = re.match(PDB,pathlib.PurePath(args.lig).name).group(1)
 REC = re.match(PDB,pathlib.PurePath(args.rec).name).group(1)
-subprocess.call(['cp',args.rec,'Proteins'])
-subprocess.call(['cp',args.lig,'Proteins'])
+subprocess.call(['cp',args.rec,FLD['PRO']])
+subprocess.call(['cp',args.lig,FLD['PRO']])
 rec = pdb.Protein.from_pdb_file(args.rec)
 lig = pdb.Protein.from_pdb_file(args.lig)
 rec.name = REC
-rec.path = os.path.join('Proteins',REC+'.pdb')
+rec.path = os.path.join(FLD['PRO'],REC+'.pdb')
 lig.name = LIG
-lig.path = os.path.join('Proteins',LIG+'.pdb')
-
-# Define working directories
-OUTDIR = args.o
-pathlib.Path(OUTDIR).mkdir(parents=True, exist_ok=True)
-FASTADIR = os.path.join(OUTDIR,'FASTA')
-INTERDIR = os.path.join(OUTDIR,'INTER')
-PRODIR = os.path.join(OUTDIR,'proteins')
-pathlib.Path(FASTADIR).mkdir(parents=True, exist_ok=True) 
-pathlib.Path(INTERDIR).mkdir(parents=True, exist_ok=True) 
+lig.path = os.path.join(FLD['PRO'],LIG+'.pdb')
 
 n_samples = int(args.n)
 n_digit = len(args.n)
@@ -59,11 +60,11 @@ n_digit = len(args.n)
 ################################
 ###  Download from InterEvol ###
 ################################
-ligf = os.path.join(FASTADIR,LIG+'.fasta')
-recf = os.path.join(FASTADIR,REC+'.fasta')
+ligf = os.path.join(FLD['FASTA'],LIG+'.fasta')
+recf = os.path.join(FLD['FASTA'],REC+'.fasta')
 lig.write_fasta(ligf)
 rec.write_fasta(recf)
-dico = runAlign(recf,ligf,INTERDIR)
+dico = runAlign(recf,ligf,FLD['INTER'])
 
 
 ################################
@@ -77,12 +78,12 @@ for key in dico.keys():
     liste = dico[key]
     #print(liste[3],liste[2])
     deg = min(int(liste[0][:-1]),int(liste[1][:-1]))
-    runProfit(lig.path, rec.path, os.path.join(INTERDIR,key+".pdb"), liste[3], liste[2])
+    runProfit(lig.path, rec.path, os.path.join(FLD['INTER'],key+".pdb"), liste[3], liste[2])
 
 
 
 
-lig_aligned = pdb.Protein.from_pdb_file('Proteins/'+LIG+'_aligned.pdb')
+lig_aligned = pdb.Protein.from_pdb_file(os.path.join(FLD['PRO'],LIG+'_aligned.pdb'))
 lig_aligned.name = LIG
 cpx = Complex(rec,lig_aligned)
 
@@ -98,10 +99,11 @@ for idx,l in enumerate(angles_generator(n_samples,deg=deg)):
     m = D[i,j]
     if m <5:
         A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],5)
-    cpx.lig.write_atoms('Proteins/B'+'{:05d}'.format(idx)+'.pdb',A)
+    cpx.lig.write_atoms(os.path.join(FLD['PRO'],'B{:05d}.pdb'.format(idx)),A)
     
 
 for k in range(n_samples):
-    subprocess.call(["python3", 'Minimizer/runMini.py', '-rec','Proteins/'+REC+'.pdb', '-lig','Proteins/B'+'{:05d}'.format(k)+'.pdb'])
-    out_file = 'pdb_mini/{}_B{:05d}_min1.pdb'.format(cpx.rec.name,k)
-    subprocess.call("sed '1d' "+out_file+" > tmp.txt; cat "+rec.path+ " tmp.txt > OUTPUT/"+cpx.rec.name+"_B{:05d}.pdb".format(k)+"; rm tmp.txt",shell=True)
+    subprocess.call(["python3", 'Minimizer/runMini.py', '-rec',cpx.rec.path, '-lig',os.path.join(FLD['PRO'],'B{:05d}.pdb'.format(k)),'-o',FLD['OUT']])
+    out_file = os.path.join(FLD['OUT'],'pdb_mini/{}_B{:05d}_min1.pdb'.format(cpx.rec.name,k))
+    cpx_out_file = os.path.join(FLD['CPX'],'{}_B{:05d}.pdb'.format(cpx.rec.name,k))
+    subprocess.call("sed '1d' {} > tmp.txt; cat {} tmp.txt > {}; rm tmp.txt".format(out_file,cpx.rec.path,cpx_out_file),shell=True)

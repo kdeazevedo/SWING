@@ -2,7 +2,7 @@
 
 # preparing var, dir...
 #======================
-set SEPDIR = ../../../Proteins #/home/anne/Proteins/
+set SEPDIR = ../../../out/Proteins #/home/anne/Proteins/
 
 
 # loop on REC
