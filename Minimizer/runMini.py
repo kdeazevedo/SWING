@@ -34,6 +34,7 @@ def writeBuilder(inlines, receptor, ligand):
         Input: template content for the reconstruction script stored in inlines, recpetor's name, ligand's name
         Output: rctrPDB.sh 
     """
+    print(receptor)
     if ligand == receptor:
         sep = ""
         ligand = (receptor, "_1")
@@ -59,16 +60,17 @@ parser.add_argument("-rec", required = True, help = "pdb filename of the recepto
 parser.add_argument("-lig", required = True, help = "pdb filename of the ligand protein (please store all the pdb (lig and rec) in Proteins/)")
 #parser.add_argument("-wd", required = False, help = "path to working directory (optional)")
 parser.add_argument("-conf", required = False, help = "protein conformation index (optional)")
+parser.add_argument('-o', required=True,help='Output folder')
 args = parser.parse_args()
 
 rec = args.rec
 lig = args.lig
-
+print(rec)
 #if args.wd:
 #    workdir = args.wd
 #else:
-filedir = os.getcwd()
-workdir = os.path.join(filedir,'Minimizer')
+filedir = args.o
+workdir = os.path.join(os.getcwd(),'Minimizer')
 
 if args.conf:
     conf = args.conf
