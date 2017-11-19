@@ -39,7 +39,11 @@ for d,n in fld_lst:
     FLD[d] = t
 
 # Define logger
-FORMAT = '%(asctime)s - %(name)s - %(levelname)8s : %(message)s'
+class LastPartFilter(logging.Filter):
+    def filter(self, record):
+        record.name_last = record.name.rsplit('.', 1)[-1]
+        return True
+FORMAT = '%(asctime)s - %(name_last)10s - %(levelname)8s - %(message)s'
 logger = logging.getLogger('main')
 logger.setLevel(logging.DEBUG)
 fh = logging.FileHandler(os.path.join(FLD['OUT'],'log.txt'))
@@ -51,6 +55,8 @@ fh.setFormatter(formatter)
 ch.setFormatter(formatter)
 logger.addHandler(fh)
 logger.addHandler(ch)
+fh.addFilter(LastPartFilter())
+ch.addFilter(LastPartFilter())
 
 LIG = re.match(PDB,pathlib.PurePath(args.lig).name).group(1)
 REC = re.match(PDB,pathlib.PurePath(args.rec).name).group(1)
