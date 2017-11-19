@@ -49,9 +49,7 @@ def runProfit (ligand, receptor, interolog, chainLigand, chainReceptor):
     env = os.environ.copy()
     env["HELPDIR"] = proFit
     env["DATADIR"] = proFit
-	#print(env)
 	
-    print(env)
     #launch profit
     #subprocess.call("profit < profit_script",shell=True)
     p=subprocess.Popen(["profit"],stdin=subprocess.PIPE,stdout=sys.stdout,stderr=sys.stderr,env=env)

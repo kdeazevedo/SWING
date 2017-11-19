@@ -2,12 +2,14 @@ import sys
 import filedownload
 import requests
 import os
+import logging
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 
+logger = logging.getLogger('main.InterEvol')
 
 '''
 This file contains the function that requests an alignment between two
@@ -59,6 +61,7 @@ def runAlign(file1,file2,interDirectory):
     If you run into an error with geckodriver, an easy fix is to retrograde your selenium version
     For that, simply use the command "pip install selenium==2.53.6
     """
+
     browser = webdriver.Firefox()
     browser.implicitly_wait(10)
     browser.get(url)
@@ -75,14 +78,14 @@ def runAlign(file1,file2,interDirectory):
     
     
     delay = 3600 #in seconds
-    print("Starting alignment")
+    logger.debug("Starting alignment")
     
     try:
         WebDriverWait(browser, delay).until(EC.title_is('InterEvolAlign results page'))
         #The browser will wait the delay or until the results page appears before anymore script is run
-        print("Page is ready!") #If the page appears, the rest of the script is run
+        logger.debug("Page is ready!") #If the page appears, the rest of the script is run
     except TimeoutException:
-        print("Loading took too much time!")
+        logger.error("Loading took too much time!")
         browser.quit()
         return #Otherwise, the function is stopped
         
@@ -94,7 +97,7 @@ def runAlign(file1,file2,interDirectory):
     PDBid=list()
     rchain=list()
     lchain=list()
-    result = {}                
+    result = {}
     
     """
     Extract the four letter PDB id of interelog domains
@@ -103,7 +106,7 @@ def runAlign(file1,file2,interDirectory):
         e=element.text
         r = e[5:-1]
         l = e[6:]
-        print(e,r,l)
+        logger.debug(e,r,l)
         PDBid.append(e)
         rchain.append(r)
         lchain.append(l)
@@ -125,9 +128,9 @@ def runAlign(file1,file2,interDirectory):
         #Get the columns      
         coll = row.find_elements_by_tag_name("td")[2] #note: index start from 0, 1 is col 2
         colr = row.find_elements_by_tag_name("td")[3]
-        #prints text from the element
-        print((coll.text))
-        print((colr.text))
+        #logger.debugs text from the element
+        logger.debug((coll.text))
+        logger.debug((colr.text))
         Idllist.append(coll.text)
         Idrlist.append(colr.text)
     
@@ -146,34 +149,36 @@ def runAlign(file1,file2,interDirectory):
     for i in range(0,len(Idllist)):
         j=j+1
         if((Idllist[i] == "100%") and (Idrlist[i] == "100%")):
-            print("The complex seems to have already been caracterized !")
+            logger.info("The complex seems to have already been caracterized. (ref {})".format(PDBid[i]))
             del PDBid[i]
             j=i-1
         else:
             result[PDBid[j]]=[Idllist[i],Idrlist[i],rchain[i],lchain[i]]
         
-    print(PDBid)    
-    print(result)
+    logger.debug(PDBid)
+    logger.debug(result)
 
     """
     Downloads the PDB file of interologs from InterEvol
     """
+    logger.debug("Downloading PDF file of each interolog.")
     for element in PDBid:
         url = "http://biodev.cea.fr/interevol/interevol.aspx?interid="+element+"#footer"
         browser.get(url)
         WebDriverWait(browser, 10).until(EC.text_to_be_present_in_element((By.ID, "downloadAlignment"), element[:4]))
-        print(browser.current_url)
+        logger.debug(browser.current_url)
         tag = browser.find_element_by_id("downloadAlignment")
         WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "downloadAlignment")))
         url2 = tag.get_attribute("href")
-        print(url2)
+        logger.debug(url2)
         r = requests.get(url2)
         with open(os.path.join(interDirectory,element+".pdb"), "wb") as code:
             code.write(r.content)
         
         
-    print("Finished downloading")
-    print((browser.current_url))
+    logger.debug("Finished downloading")
+    logger.debug((browser.current_url))
+    logger.info("{:02d} interologs are found.".format(len(PDBid)))
     return(result)
         
 if __name__ == '__main__':
