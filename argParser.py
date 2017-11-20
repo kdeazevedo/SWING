@@ -7,10 +7,15 @@ parent_parser.add_argument('-o', default='out',
 parent_parser.add_argument('-rec', required=True, default=argparse.SUPPRESS,
         help='Recepter\'s file path')
 
-parser = argparse.ArgumentParser(
-        parents=[parent_parser],formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-subparsers = parser.add_subparsers()
+parser = argparse.ArgumentParser()
+subparsers = parser.add_subparsers(dest='cmd')
 
+# Parser for running from A to Z
+parser_run = subparsers.add_parser('run',
+    parents=[parent_parser],formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+)
+parser_run.add_argument('-lig', required=True, default=argparse.SUPPRESS,
+        help='Ligand\'s file path')
 
 # Parser for sampling
 parser_samples = subparsers.add_parser('samples',
@@ -19,7 +24,8 @@ parser_samples = subparsers.add_parser('samples',
 parser_samples.add_argument('-lig', nargs='+',required=True, default=argparse.SUPPRESS,
         help='Ligand\'s file path')
 parser_samples.add_argument('-n',default=1000,help='Number of sampling')
-parser_samples.add_argument('--minimizer',default=True,help='Lauch minimizer after sampling')
+parser_samples.add_argument('--minimizer', action='store_true',
+        help='Launch minimizer after sampling')
 
 # Parser for alignement
 parser_align = subparsers.add_parser('align',
@@ -34,3 +40,7 @@ parser_dl = subparsers.add_parser('download',
         parents=[parent_parser],formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser_dl.add_argument('-lig', required=True, default=argparse.SUPPRESS,
         help='Ligand\'s file path')
+
+if __name__ == "__main__":
+    p = parser.parse_args(['-rec','t','samples','-lig','u'])
+    print(p)

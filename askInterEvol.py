@@ -3,6 +3,7 @@ import filedownload
 import requests
 import os
 import logging
+import json
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -106,7 +107,7 @@ def runAlign(file1,file2,interDirectory):
         e=element.text
         r = e[5:-1]
         l = e[6:]
-        logger.debug(e,r,l)
+        logger.debug('{} {} {}'.format(e,r,l))
         PDBid.append(e)
         rchain.append(r)
         lchain.append(l)
@@ -179,6 +180,9 @@ def runAlign(file1,file2,interDirectory):
     logger.debug("Finished downloading")
     logger.debug((browser.current_url))
     logger.info("{:02d} interologs are found.".format(len(PDBid)))
+    with open(os.path.join(interDirectory,'Inter.conf'),'w') as f:
+        json.dump(result,f,indent=2)
+        logger.info("Write result into {}".format(f.name))
     return(result)
         
 if __name__ == '__main__':
