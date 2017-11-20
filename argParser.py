@@ -32,8 +32,8 @@ parser_align = subparsers.add_parser('align',
         parents=[parent_parser],formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser_align.add_argument('-lig', required=True, default=argparse.SUPPRESS,
         help='Ligand\'s file path')
-parser_align.add_argument('-i','--interologs', nargs='+', required=True, default=argparse.SUPPRESS,
-        help='Ligand\'s file path')
+parser_align.add_argument('-c','--config', required=True, default=argparse.SUPPRESS,
+        help='Config file for alignement')
 
 # Parser for download from InterEvol
 parser_dl = subparsers.add_parser('download',

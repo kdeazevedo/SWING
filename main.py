@@ -14,6 +14,8 @@ import filedownload as fd
 from alignInterolog import runProfit
 import runMini as mini
 from argParser import parser
+import json
+from datetime import datetime
 
 args = parser.parse_args()
 
@@ -43,7 +45,7 @@ class LastPartFilter(logging.Filter):
 FORMAT = '%(asctime)s - %(name_last)10s - %(levelname)8s - %(message)s'
 logger = logging.getLogger('main')
 logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler(os.path.join(FLD['OUT'],'log.txt'))
+fh = logging.FileHandler(os.path.join(FLD['OUT'],'log_{:%Y%m%d_%H%M%S}.txt'.format(datetime.now())))
 fh.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
@@ -84,12 +86,19 @@ if args.cmd == 'run' or args.cmd == 'download':
 ################################
 ###  Alignment with Profit   ###
 ################################
-elif args.cmd == 'align':
+if args.cmd == 'run' or args.cmd == 'align':
+    if args.cmd == 'align':
+        with open(args.config,'r') as f:
+            dico = json.load(f)
     logger.debug("Start of alignment with ProFit")
     for key in dico.keys():
         liste = dico[key]
         deg = min(int(liste[0][:-1]),int(liste[1][:-1]))
-        runProfit(lig.path, rec.path, os.path.join(FLD['INTER'],key+".pdb"), liste[3], liste[2])
+        res = runProfit(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste[3],liste[2])
+        dico[key].append(res)
+    with open(os.path.join(FLD['INTER'],'Samples.conf'),'w') as f:
+        json.dump(dico,f,indent=2)
+        logger.info("Write result into {}".format(f.name))
     logger.debug("End of alignment with ProFit")
     
     lig_aligned = pdb.Protein.from_pdb_file(os.path.join(FLD['PRO'],LIG+'_aligned.pdb'))
