@@ -1,4 +1,3 @@
-import argparse
 import os.path
 import pathlib
 import logging
@@ -14,12 +13,7 @@ from askInterEvol import runAlign
 import filedownload as fd
 from alignInterolog import runProfit
 import runMini as mini
-
-parser = argparse.ArgumentParser()
-parser.add_argument('-rec',required=True,help='Recepter\'s file path')
-parser.add_argument('-lig',required=True,help='Ligand\'s file path')
-parser.add_argument('-n',help='Number of sampling')
-parser.add_argument('-o',default='out',help='The directory where program\'s output sotres')
+from argParser import parser
 
 args = parser.parse_args()
 
