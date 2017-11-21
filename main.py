@@ -57,19 +57,16 @@ logger.addHandler(ch)
 fh.addFilter(LastPartFilter())
 ch.addFilter(LastPartFilter())
 
-if args.cmd == 'samples':
-    pass
-else:
-    LIG = re.match(PDB,pathlib.PurePath(args.lig).name).group(1)
-    REC = re.match(PDB,pathlib.PurePath(args.rec).name).group(1)
-    subprocess.call(['cp',args.rec,FLD['PRO']])
-    subprocess.call(['cp',args.lig,FLD['PRO']])
-    rec = pdb.Protein.from_pdb_file(args.rec)
-    lig = pdb.Protein.from_pdb_file(args.lig)
-    rec.name = REC
-    rec.path = os.path.join(FLD['PRO'],REC+'.pdb')
-    lig.name = LIG
-    lig.path = os.path.join(FLD['PRO'],LIG+'.pdb')
+LIG = re.match(PDB,pathlib.PurePath(args.lig).name).group(1)
+REC = re.match(PDB,pathlib.PurePath(args.rec).name).group(1)
+subprocess.call(['cp',args.rec,FLD['PRO']])
+subprocess.call(['cp',args.lig,FLD['PRO']])
+rec = pdb.Protein.from_pdb_file(args.rec)
+lig = pdb.Protein.from_pdb_file(args.lig)
+rec.name = REC
+rec.path = os.path.join(FLD['PRO'],REC+'.pdb')
+lig.name = LIG
+lig.path = os.path.join(FLD['PRO'],LIG+'.pdb')
 
 
 ################################
@@ -109,10 +106,18 @@ if args.cmd == 'run' or args.cmd == 'align':
 ###         Sampling         ###
 ################################
 
-elif args.cmd == 'samples':
-    cpx = Complex(rec,lig)
+if args.cmd == 'run' or args.cmd == 'samples':
+    if args.cmd == 'samples':
+        with open(args.config,'r') as f:
+            dico = json.load(f)
+        for key in dico.keys():
+            liste = dico[key]
+            deg = min(int(liste[0][:-1]),int(liste[1][:-1]))
+            lig_aligned = pdb.Protein.from_pdb_file(liste[-1])
+            lig_aligned.name = LIG
+            cpx = Complex(rec,lig_aligned)
     logger.debug('Start sampling')
-    for idx,l in enumerate(angles_generator(n_samples,deg=0)):
+    for idx,l in enumerate(angles_generator(args.n,deg=deg)):
         logger.info('Ligand {:>6}\'s rotatation No. {:05d}({})'.format(cpx.lig.name,idx,l))
         A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
         D = cpx.ca_dist(A)
@@ -124,7 +129,7 @@ elif args.cmd == 'samples':
     logger.debug("End sampling")
     if args.minimizer: 
         logger.debug('Start of minimizer')
-        for k in range(n_samples):
+        for k in range(args.n):
             successed = mini.run(cpx.rec.path,os.path.join(FLD['PRO'],'B{:05d}.pdb'.format(k)),FLD['OUT'],k)
             if successed:
                 out_file = os.path.join(FLD['OUT'],'pdb_mini/{}_B{:05d}_min_{:05d}.pdb'.format(cpx.rec.name,k,k))

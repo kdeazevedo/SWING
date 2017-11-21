@@ -16,14 +16,19 @@ parser_run = subparsers.add_parser('run',
 )
 parser_run.add_argument('-lig', required=True, default=argparse.SUPPRESS,
         help='Ligand\'s file path')
+parser_run.add_argument('-n',type=int,default=1000,help='Number of sampling')
+parser_run.add_argument('--minimizer', action='store_true',
+        help='Launch minimizer after sampling')
 
 # Parser for sampling
 parser_samples = subparsers.add_parser('samples',
         parents=[parent_parser],formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         conflict_handler='resolve')
-parser_samples.add_argument('-lig', nargs='+',required=True, default=argparse.SUPPRESS,
+parser_samples.add_argument('-lig', required=True, default=argparse.SUPPRESS,
         help='Ligand\'s file path')
-parser_samples.add_argument('-n',default=1000,help='Number of sampling')
+parser_samples.add_argument('-n',type=int,default=1000,help='Number of sampling')
+parser_samples.add_argument('-c','--config', required=True, default=argparse.SUPPRESS,
+        help='Config file for sampling')
 parser_samples.add_argument('--minimizer', action='store_true',
         help='Launch minimizer after sampling')
 
