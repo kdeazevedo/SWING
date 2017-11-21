@@ -78,7 +78,7 @@ def FASTAfromPDB(PDBfile, indir, outdir):
 
     letters = {'ALA':'A','ARG':'R','ASN':'N','ASP':'D','CYS':'C','GLU':'E','GLN':'Q','GLY':'G','HIS':'H',
                'ILE':'I','LEU':'L','LYS':'K','MET':'M','PHE':'F','PRO':'P','SER':'S','THR':'T','TRP':'W',
-               'TYR':'Y','VAL':'V'}
+               'TYR':'Y','VAL':'V', 'BGLU' : 'E'}
 
     prev = '-1'
         
@@ -86,9 +86,14 @@ def FASTAfromPDB(PDBfile, indir, outdir):
         toks = line.split()
         if len(toks)<1: continue
         if toks[0] != 'ATOM': continue
-        if toks[5] != prev:
-            output_file.write('%c' % letters[toks[3]])
-        prev = toks[5]
+        if len(toks[4]) == 1:
+            if (toks[5] != prev) & (toks[3] in letters.keys()):
+                output_file.write('%c' % letters[toks[3]])
+                prev = toks[5]
+        else:
+             if (toks[4] != prev) & (toks[3] in letters.keys()):
+                output_file.write('%c' % letters[toks[3]])
+                prev = toks[4]           
 
     output_file.write('\n')
     input_file.close()
