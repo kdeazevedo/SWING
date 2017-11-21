@@ -54,6 +54,7 @@ def runProfit (ligand, receptor, interolog, chainLigand, chainReceptor):
     #subprocess.call("profit < profit_script",shell=True)
     p=subprocess.Popen(["profit"],stdin=subprocess.PIPE,stdout=sys.stdout,stderr=sys.stderr,env=env)
     p.communicate(input=script.encode(encoding="UTF-8"))
+    return output
 
     
 
