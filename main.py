@@ -81,7 +81,7 @@ if args.cmd == 'run' or args.cmd == 'download':
     dico = runAlign(recf,ligf,FLD['INTER'])
 
 ################################
-###  Alignment with Profit   ###
+###   Alignment with Pymol   ###
 ################################
 if args.cmd == 'run' or args.cmd == 'align':
     if args.cmd == 'align':
@@ -91,7 +91,8 @@ if args.cmd == 'run' or args.cmd == 'align':
     for key in dico.keys():
         liste = dico[key]
         deg = min(int(liste[0][:-1]),int(liste[1][:-1]))
-        res = runProfit(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste[3],liste[2])
+        #res = runProfit(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste[3],liste[2])
+        res = runPymolAlignment(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste[3],liste[2])
         dico[key].append(res)
     with open(os.path.join(FLD['INTER'],'Samples.conf'),'w') as f:
         json.dump(dico,f,indent=2)
