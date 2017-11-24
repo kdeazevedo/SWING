@@ -5,3 +5,4 @@ global_out/*.dat
 Minimizer/minimizer/
 out/
 geckodriver.log
+pymol_script.pml

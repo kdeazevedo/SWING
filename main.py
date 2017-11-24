@@ -11,7 +11,7 @@ from models.complex import Complex
 from functions import angles_generator, angles_random, vec_to_dist
 from askInterEvol import runAlign
 import filedownload as fd
-from alignInterolog import runProfit
+from alignInterolog import runPymolAlignment
 import runMini as mini
 from argParser import parser
 import json
@@ -87,7 +87,7 @@ if args.cmd == 'run' or args.cmd == 'align':
     if args.cmd == 'align':
         with open(args.config,'r') as f:
             dico = json.load(f)
-    logger.debug("Start of alignment with ProFit")
+    logger.debug("Start of alignment with Pymol")
     for key in dico.keys():
         liste = dico[key]
         deg = min(int(liste[0][:-1]),int(liste[1][:-1]))
@@ -97,7 +97,7 @@ if args.cmd == 'run' or args.cmd == 'align':
     with open(os.path.join(FLD['INTER'],'Samples.conf'),'w') as f:
         json.dump(dico,f,indent=2)
         logger.info("Write result into {}".format(f.name))
-    logger.debug("End of alignment with ProFit")
+    logger.debug("End of alignment with Pymol")
     
     lig_aligned = pdb.Protein.from_pdb_file(os.path.join(FLD['PRO'],LIG+'_aligned.pdb'))
     lig_aligned.name = LIG
