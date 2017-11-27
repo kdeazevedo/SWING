@@ -79,6 +79,10 @@ if args.cmd == 'run' or args.cmd == 'download':
     rec.write_fasta(recf)
     logger.debug("Start download. Please wait...")
     dico = runAlign(recf,ligf,FLD['INTER'])
+    with open(os.path.join(interDirectory,'Inter_{}.conf'.format(REC)),'w') as f:
+        json.dump(dico,f,indent=2)
+        logger.info("Write result into {}".format(f.name))
+
 
 ################################
 ###   Alignment with Pymol   ###
@@ -90,16 +94,15 @@ if args.cmd == 'run' or args.cmd == 'align':
     logger.debug("Start of alignment with Pymol")
     for key in dico.keys():
         liste = dico[key]
-        deg = min(int(liste[0][:-1]),int(liste[1][:-1]))
         #res = runProfit(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste[3],liste[2])
-        res = runPymolAlignment(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste[3],liste[2])
-        dico[key].append(res)
-    with open(os.path.join(FLD['INTER'],'Samples.conf'),'w') as f:
+        res = runPymolAlignment(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste['idn_l'],liste['idn_r'])
+        dico[key]['lig_aligned']=res
+    with open(os.path.join(FLD['INTER'],'Samples_{}.conf'.format(REC)),'w') as f:
         json.dump(dico,f,indent=2)
         logger.info("Write result into {}".format(f.name))
     logger.debug("End of alignment with Pymol")
     
-    lig_aligned = pdb.Protein.from_pdb_file(os.path.join(FLD['PRO'],LIG+'_aligned.pdb'))
+    lig_aligned = pdb.Protein.from_pdb_file(res)
     lig_aligned.name = LIG
     cpx = Complex(rec,lig_aligned)
 
@@ -111,30 +114,39 @@ if args.cmd == 'run' or args.cmd == 'samples':
     if args.cmd == 'samples':
         with open(args.config,'r') as f:
             dico = json.load(f)
-        for key in dico.keys():
-            liste = dico[key]
-            deg = min(int(liste[0][:-1]),int(liste[1][:-1]))
-            lig_aligned = pdb.Protein.from_pdb_file(liste[-1])
-            lig_aligned.name = LIG
-            cpx = Complex(rec,lig_aligned)
-    logger.debug('Start sampling')
-    for idx,l in enumerate(angles_generator(args.n,deg=deg)):
-        logger.info('Ligand {:>6}\'s rotatation No. {:05d}({})'.format(cpx.lig.name,idx,l))
-        A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
-        D = cpx.ca_dist(A)
-        i,j = np.unravel_index(D.argmin(), D.shape)
-        m = D[i,j]
-        if m <5:
-            A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],5)
-        cpx.lig.write_atoms(os.path.join(FLD['PRO'],'B{:05d}.pdb'.format(idx)),A)
-    logger.debug("End sampling")
-    if args.minimizer: 
-        logger.debug('Start of minimizer')
-        for k in range(args.n):
-            successed = mini.run(cpx.rec.path,os.path.join(FLD['PRO'],'B{:05d}.pdb'.format(k)),FLD['OUT'],k)
-            if successed:
-                out_file = os.path.join(FLD['OUT'],'pdb_mini/{}_B{:05d}_min_{:05d}.pdb'.format(cpx.rec.name,k,k))
-                cpx_out_file = os.path.join(FLD['CPX'],'{}_B{:05d}.pdb'.format(cpx.rec.name,k))
-                subprocess.call("sed '1d' {} > tmp.txt; cat {} tmp.txt > {}; rm tmp.txt".format(out_file,cpx.rec.path,cpx_out_file),shell=True)
-        logger.debug('End of minimizer')
+    for key in dico.keys():
+        liste = dico[key]
+        deg = min(int(liste['idn_r'][:-1]),int(liste['idn_l'][:-1]))
+        lig_aligned = pdb.Protein.from_pdb_file(liste['lig_aligned'])
+        lig_aligned.name = LIG
+        cpx = Complex(rec,lig_aligned)
+        logger.debug('Start sampling of template {}'.format(key))
+        for idx,l in enumerate(angles_generator(args.n,deg=deg)):
+            logger.info('Ligand {:>6}\'s rotatation No. {:06d}({})'.format(cpx.lig.name,idx,l))
+            A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
+            D = cpx.ca_dist(A)
+            i,j = np.unravel_index(D.argmin(), D.shape)
+            m = D[i,j]
+            if m <5:
+                A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],5)
+            if args.minimizer:
+                cpx.lig.write_atoms(os.path.join(FLD['PRO'],'{:06d}.pdb'.format(idx)),A)
+            else:
+                cpx.lig.write_atoms(os.path.join(FLD['PRO'],'{}_{}_{:06d}.pdb'.format(cpx.lig.name,key,idx)),A)
+        logger.debug("End sampling of template {}".format(key))
+        if args.minimizer: 
+            logger.debug('Start of minimizer')
+            for k in range(args.n):
+                conf = "{}_{:06d}".format(key,k)
+                lig_pro = os.path.join(FLD['PRO'],'{:06d}.pdb'.format(k))
+                lig_pro_o = os.path.join(FLD['PRO'],'{}_{}.pdb'.format(cpx.lig.name,conf))
+                successed = mini.run(cpx.rec.path,lig_pro,FLD['OUT'],conf=conf)
+                subprocess.call(["mv",lig_pro,lig_pro_o])
+                if successed:
+                    out_f_1 = os.path.join(FLD['OUT'],'pdb_mini/{}_min.pdb'.format(conf))
+                    out_f = os.path.join(FLD['OUT'],'pdb_mini/{}_{}_min.pdb'.format(cpx.lig.name,conf))
+                    subprocess.call(["mv",out_f_1,out_f])
+                    cpx_out_file = os.path.join(FLD['CPX'],'{}_cpx_{}.pdb'.format(cpx.rec.name,conf))
+                    subprocess.call("sed '1d' {} > tmp.txt; cat {} tmp.txt > {}; rm tmp.txt".format(out_f,cpx.rec.path,cpx_out_file),shell=True)
+            logger.debug('End of minimizer')
 logger.debug('End of program')
