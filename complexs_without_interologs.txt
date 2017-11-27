@@ -1,0 +1,26 @@
+Complexes binaires solubles
+1CS0
+1BVN
+1I4D
+1UDI
+3TUI
+1KKL
+1N2C
+
+Anticorps-antigène
+1AHW
+1DQJ
+1MLC
+
+Homomères C2
+Aucun
+
+Homomères D2
+1sjw
+
+Inter domaine-domaine
+Tous
+(Par construction de la base de données InterEvol, celle-ci ne trouvera pas d'interologues)
+
+Macro-assemblages
+Aucun
