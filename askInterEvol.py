@@ -154,7 +154,7 @@ def runAlign(file1,file2,interDirectory):
             del PDBid[i]
             j=i-1
         else:
-            result[PDBid[j]]=[Idllist[i],Idrlist[i],rchain[i],lchain[i]]
+            result[PDBid[j]]={'idn_l':Idllist[i],'idn_r':Idrlist[i],'chn_l':lchain[i],'chn_r':rchain[i]}
         
     logger.debug(PDBid)
     logger.debug(result)

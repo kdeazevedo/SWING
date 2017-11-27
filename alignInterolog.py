@@ -83,12 +83,12 @@ def runPymolAlignment(ligand, receptor, interolog, chainLigand, chainReceptor):
     #os.chdir(PDBDirectory)
     
 	#name the alignment actors
-    output = ligand.replace(".pdb", "_aligned.pdb")
     ligandName = os.path.basename(ligand).replace(".pdb","")
     receptorName = os.path.basename(receptor).replace(".pdb","")
     interologName = os.path.basename(interolog).replace(".pdb","")
     interologRec = interologName.replace(".pdb","_rec")
     interologLig = interologName.replace(".pdb","_lig")
+    output = ligand.replace(".pdb", "_"+interologName+"_aligned.pdb")
     
     
     #move to the pdb file directory
