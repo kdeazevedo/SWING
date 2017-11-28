@@ -21,7 +21,7 @@ class Complex():
 
     def ca_dist(self,lig):
         """
-        Return the minimum distance between receptor's and ligand's carbon alpha
+        Return the distance between each pair of receptor's and ligand's carbon alpha
         """
         # TODO : Use ann when matrix size is large
         return cdist(self.rec.get_ca(),lig[self.lig.get_ca_ind()])
