@@ -51,6 +51,9 @@ def get_ca_ind(self):
 pdb.Protein.get_ca_ind = get_ca_ind
 
 def get_ca(self):
+    """
+    Return list of carbon alpha positions
+    """
     try:
         return self._ca
     except:
