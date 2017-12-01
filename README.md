@@ -9,11 +9,11 @@ Use `pip3` to install.
 pip3 install -r requirements.txt
 ```
 ### The third party software
-`Minimiser` and [ProFit](http://www.bioinf.org.uk/software/profit/index.html) are used in this program.
+`Minimiser` and `Pymol` (https://pymol.org/2/) are used in this program.
 
 Please copy `minimiser` folder(from [here](https://github.com/meetU-MasterStudents/2017-2018_partage/tree/master/Codes/Minimizer)) into `Minimiser` folder.
 
-Then, download `ProFit` from its official page ([here](http://www.bioinf.org.uk/software/swreg.html))
+Then, install `Pymol` following instructions from its official page ([here](http://www.pymol.org/install))
 ## Quick start:
 To run the program from A to Z :
 ```bash
