@@ -95,7 +95,7 @@ if args.cmd == 'run' or args.cmd == 'download':
     logger.debug("Start download. Please wait...")
     dico = runAlign(recf,ligf,FLD['INTER'])
     # Write result in json format with prefix "Inter"
-    with open(os.path.join(interDirectory,'Inter_{}.conf'.format(REC)),'w') as f:
+    with open(os.path.join(FLD['INTER'],'Inter_{}.conf'.format(REC)),'w') as f:
         json.dump(dico,f,indent=2)
         logger.info("Write result into {}".format(f.name))
 
