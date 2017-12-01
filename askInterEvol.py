@@ -151,8 +151,8 @@ def runAlign(file1,file2,interDirectory):
         j=j+1
         if((Idllist[i] == "100%") and (Idrlist[i] == "100%")):
             logger.info("The complex seems to have already been caracterized. (ref {})".format(PDBid[i]))
-            del PDBid[i]
-            j=i-1
+            del PDBid[j]
+            j=j-1
         else:
             result[PDBid[j]]={'idn_l':Idllist[i],'idn_r':Idrlist[i],'chn_l':lchain[i],'chn_r':rchain[i]}
         
