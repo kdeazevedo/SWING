@@ -67,6 +67,8 @@ logger.addHandler(fh)
 logger.addHandler(ch)
 fh.addFilter(LastPartFilter())
 ch.addFilter(LastPartFilter())
+# Rotation logger
+sam_logger = logging.getLogger('main.sampling')
 
 # Extract recepter's and ligand's information
 # Create recepter object
@@ -80,6 +82,7 @@ rec.name = REC
 rec.path = os.path.join(FLD['PRO'],REC+'.pdb')
 lig.name = LIG
 lig.path = os.path.join(FLD['PRO'],LIG+'.pdb')
+logger.info("Start program. Receptor: {} Ligand: {}".format(REC,LIG))
 
 
 ################################
@@ -97,8 +100,7 @@ if args.cmd == 'run' or args.cmd == 'download':
     # Write result in json format with prefix "Inter"
     with open(os.path.join(FLD['INTER'],'Inter_{}.conf'.format(REC)),'w') as f:
         json.dump(dico,f,indent=2)
-        logger.info("Write result into {}".format(f.name))
-
+        logger.info("Write alignment config file into {}".format(f.name))
 
 ################################
 ###   Alignment with Pymol   ###
@@ -120,7 +122,7 @@ if args.cmd == 'run' or args.cmd == 'align':
     # Write dico into config file in json format with prefix "Samples"
     with open(os.path.join(FLD['INTER'],'Samples_{}.conf'.format(REC)),'w') as f:
         json.dump(dico,f,indent=2)
-        logger.info("Write result into {}".format(f.name))
+        logger.info("Write sampling config file into {}".format(f.name))
     logger.debug("End of alignment with Pymol")
     
 ################################
@@ -142,10 +144,10 @@ if args.cmd == 'run' or args.cmd == 'samples':
         lig_aligned.name = LIG
         # Create Complex object for recepter and aligned ligand
         cpx = Complex(rec,lig_aligned)
-        logger.debug('Start sampling of template {}'.format(key))
+        sam_logger.info('Start sampling on template {}'.format(key))
         # Rotate ligand for each generated angles
         for idx,l in enumerate(angles_generator(args.n,deg=deg)):
-            logger.info('Ligand {:>6}\'s rotatation No. {:06d}({})'.format(cpx.lig.name,idx,l))
+            sam_logger.info('Rotatation No. {:06d}({})'.format(idx,l))
             A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
             # Move lignad if the minimum distance between two carbon alpha is less than 5
             D = cpx.ca_dist(A)

@@ -139,7 +139,7 @@ def run(rec,lig,filedir,conf=1):
         subprocess.call(["mv", inpath, outpath])
         return True
     except:
-        logger.warn('Failed on ligand No. {}'.format(ligid))
+        logger.warn('Failed on No. {}'.format(ligid))
         return False
     
     
