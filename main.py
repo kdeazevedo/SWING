@@ -82,7 +82,7 @@ rec.name = REC
 rec.path = os.path.join(FLD['PRO'],REC+'.pdb')
 lig.name = LIG
 lig.path = os.path.join(FLD['PRO'],LIG+'.pdb')
-logger.info("Start program. Receptor: {} Ligand: {}".format(REC,LIG))
+logger.info("Start program. Receptor: {} Ligand: {} Output: {}".format(REC,LIG,FLD['OUT']))
 
 
 ################################
