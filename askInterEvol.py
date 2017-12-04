@@ -179,10 +179,7 @@ def runAlign(file1,file2,interDirectory):
         
     logger.debug("Finished downloading")
     logger.debug((browser.current_url))
-    logger.info("{:02d} interologs are found.".format(len(PDBid)))
-    with open(os.path.join(interDirectory,'Inter.conf'),'w') as f:
-        json.dump(result,f,indent=2)
-        logger.info("Write result into {}".format(f.name))
+    logger.info("{:02d} interologs are found. ({})".format(len(PDBid),' '.join(PDBid)))
     return(result)
         
 if __name__ == '__main__':
