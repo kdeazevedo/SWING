@@ -37,7 +37,7 @@ assert os.path.isfile(args.lig), "Ligand file not found"
 #  - global_out   : store minimiser's global output
 pathlib.Path(args.o).mkdir(parents=True, exist_ok=True)
 fld_lst = [('FASTA','Fasta'),('INTER','Inter'),('CPX','Complex'),('PRO','Proteins'),
-    ('PMIN','pdb_mini'),('GOUT','global_out')]
+    ('PMIN','pdb_mini'),('GOUT','global_out'), ('LOG', 'log')]
 FLD = {'OUT':os.path.abspath(args.o)}
 for d,n in fld_lst:
     t = os.path.join(FLD['OUT'],n)
@@ -121,6 +121,7 @@ if args.cmd == 'run' or args.cmd == 'align':
         liste = dico[key]
         res = runPymolAlignment(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste['chn_l'],liste['chn_r'])
         dico[key]['lig_aligned']=res
+    subprocess.call("mv pymol_script.pml out/log", shell=True)
     logger.debug("End of alignment with Pymol")
     
  
@@ -133,9 +134,9 @@ if args.cmd == 'run' or args.cmd == 'align':
     createList(FLD['PRO'], step="init")
     # Run clusco and create a list of pdb names representing each cluster
     pdblist=runClusco(pdbListName="pdb_list")
+    subprocess.call("mv out/*clustering* log", shell=True)
+    
     # Only pdb in that pdblist will be used for initial position in sampling
-
-
     INTERTEM = r""+os.path.join(FLD['PRO'],LIG+"_(\w+)_aligned.pdb")
     dico_t = {k:dico[k] for k in [re.match(INTERTEM,s).group(1) for s in pdblist] }
     dico = dico_t
@@ -206,10 +207,9 @@ if args.cmd == 'run' or args.cmd == 'samples':
                     print(out_f,file=ligLst)
                     #cpx_out_file = os.path.join(FLD['CPX'],'{}_cpx_{}.pdb'.format(cpx.rec.name,conf))
                     #subprocess.call("sed '1d' {} > tmp.txt; cat {} tmp.txt > {}; rm tmp.txt".format(out_f,cpx.rec.path,cpx_out_file),shell=True)
-
+            subprocess.call("mv out/*log* log", shell=True)
             logger.debug('End of minimizer')
     ligLst.close()
-
     
     
              
