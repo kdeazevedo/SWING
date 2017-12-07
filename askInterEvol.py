@@ -94,12 +94,12 @@ def runAlign(file1,file2,interDirectory):
         input_field.send_keys(value)
 	
     for key, value in blast.items():
-		el = browser.find_element_by_id(key)
-		for option in el.find_elements_by_tag_name('option'):
-			if option.text == value:
-				option.click()
-				break
-    
+        el = browser.find_element_by_id(key)
+        for option in el.find_elements_by_tag_name('option'):
+            if option.text == value:
+                option.click()
+                break
+
     """
     Send the request
     """
