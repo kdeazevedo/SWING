@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 logger = logging.getLogger('main.InterEvol')
 
@@ -75,7 +76,34 @@ def runAlign(file1,file2,interDirectory):
     """
     browser.find_element_by_id('seqReceptor').send_keys(fasta1) 
     browser.find_element_by_id('seqLigand').send_keys(fasta2)
-    browser.find_element_by_id('btnRun').click() 
+    
+    """
+    Change the parameters
+    """
+    parameters = {}
+    with open(os.path.join(os.getcwd(),'parameters.conf'),'r') as f:
+        parameters =eval(f.read())
+
+    blast = {}
+    with open(os.path.join(os.getcwd(),'blast.conf'),'r') as f:
+        blast =eval(f.read())   
+    
+    for key, value in parameters.items():
+        input_field = browser.find_element_by_id(key)
+        browser.execute_script("arguments[0].value = ''", input_field)
+        input_field.send_keys(value)
+	
+    for key, value in blast.items():
+        el = browser.find_element_by_id(key)
+        for option in el.find_elements_by_tag_name('option'):
+            if option.text == value:
+                option.click()
+                break
+
+    """
+    Send the request
+    """
+    browser.find_element_by_id('btnRun').click()
     
     
     delay = 3600 #in seconds
@@ -104,7 +132,7 @@ def runAlign(file1,file2,interDirectory):
     Extract the four letter PDB id of interelog domains
     """
     for element in InterologList:
-        e=element.text
+        e=element.text 
         r = e[5:-1]
         l = e[6:]
         logger.debug('{} {} {}'.format(e,r,l))
@@ -149,8 +177,14 @@ def runAlign(file1,file2,interDirectory):
     j=-1
     for i in range(0,len(Idllist)):
         j=j+1
-        if((Idllist[i] == "100%") and (Idrlist[i] == "100%")):
-            logger.info("The complex seems to have already been caracterized. (ref {})".format(PDBid[i]))
+        a = PDBid[j]
+        print(a[:4])
+        if(a[:4] in str(file1).lower()):
+            logger.info("The complex seems to have already been caracterized. (ref {})".format(PDBid[j]))
+            del PDBid[j]
+            j=j-1
+        elif((Idllist[i] == "100%") and (Idrlist[i] == "100%")):
+            logger.info("The complex seems to have already been caracterized. (ref {})".format(PDBid[j]))
             del PDBid[j]
             j=j-1
         else:
