@@ -33,7 +33,7 @@ def rot_around_rec_quat(axis,theta,phi):
     thetaq = np.exp(quat.quaternion(*t_rot_axis))
     return thetaq*phiq
 
-def angles_generator(k,deg=0,rot_lim=np.pi/6,self_lim=np.pi/6):
+def angles_generator(k,deg=0,rot_lim=np.pi/24,self_lim=np.pi/24):
     """
     Generate randomly k*5 rotation angles(2 for rotation around center and 3 for self rotation)
     thata and phi are selected from [-rot_lim,rot_lim]*(1-deg)
@@ -51,7 +51,7 @@ def angles_generator(k,deg=0,rot_lim=np.pi/6,self_lim=np.pi/6):
         n = self_lim * (1-deg)
         yield np.concatenate((np.random.sample(2)*m*2-m,np.random.sample(3)*2*n-n),axis=0)
 
-def angles_random(deg=0,rot_lim=np.pi/6,self_lim=np.pi/6):
+def angles_random(deg=0,rot_lim=np.pi/24,self_lim=np.pi/24):
     """
     Generate a random set of rotation angles. Same as :
     angles_generator(1,deg,rot_lim,self_lim)
@@ -62,7 +62,7 @@ def angles_random(deg=0,rot_lim=np.pi/6,self_lim=np.pi/6):
 
 def vec_to_dist(a,b,d):
     """
-    Return vector b->c sush that ||ac|| = d and a->b // a->c
+    Return vector b->c such that ||ac|| = d and a->b // a->c
     """
     m = np.linalg.norm(b-a)
     return ((d-m)*b+(m-d)*a)/m

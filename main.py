@@ -16,6 +16,8 @@ import runMini as mini
 from argParser import parser
 import json
 from datetime import datetime
+from cluster import createList, runClusco
+from scipy.spatial.distance import cdist
 
 # Define arguments from argParser.py
 args = parser.parse_args()
@@ -117,13 +119,30 @@ if args.cmd == 'run' or args.cmd == 'align':
     # Then, add aligned ligand's pdb file path into dico
     for key in dico.keys():
         liste = dico[key]
-        res = runPymolAlignment(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste['idn_l'],liste['idn_r'])
+        res = runPymolAlignment(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste['chn_l'],liste['chn_r'])
         dico[key]['lig_aligned']=res
+    logger.debug("End of alignment with Pymol")
+    
+ 
+#################################
+### Cluster initial positions ###
+#################################
+   
+    # Start alignment with pymol if command is run or align
+    # Create a file containing the pdb list to cluster   
+    createList(FLD['PRO'], step="init")
+    # Run clusco and create a list of pdb names representing each cluster
+    pdblist=runClusco(pdbListName="pdb_list")
+    # Only pdb in that pdblist will be used for initial position in sampling
+
+
+    INTERTEM = r""+os.path.join(FLD['PRO'],LIG+"_(\w+)_aligned.pdb")
+    dico_t = {k:dico[k] for k in [re.match(INTERTEM,s).group(1) for s in pdblist] }
+    dico = dico_t
     # Write dico into config file in json format with prefix "Samples"
     with open(os.path.join(FLD['INTER'],'Samples_{}.conf'.format(REC)),'w') as f:
         json.dump(dico,f,indent=2)
         logger.info("Write sampling config file into {}".format(f.name))
-    logger.debug("End of alignment with Pymol")
     
 ################################
 ###         Sampling         ###
@@ -136,6 +155,8 @@ if args.cmd == 'run' or args.cmd == 'samples':
         with open(args.config,'r') as f:
             dico = json.load(f)
     # Run sampling for each interolog
+    # Create a list of pdb to cluster after sampling
+    ligLst = open(os.path.join(FLD["OUT"],"sampling.result"),"w")
     for key in dico.keys():
         liste = dico[key]
         # Degree = min of interolog's recepter and ligand's identity
@@ -149,34 +170,47 @@ if args.cmd == 'run' or args.cmd == 'samples':
         for idx,l in enumerate(angles_generator(args.n,deg=deg)):
             sam_logger.info('Rotatation No. {:06d}({})'.format(idx,l))
             A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
-            # Move lignad if the minimum distance between two carbon alpha is less than 5
-            D = cpx.ca_dist(A)
-            i,j = np.unravel_index(D.argmin(), D.shape)
-            m = D[i,j]
-            if m <5:
-                A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],5)
+            # Move ligand if the minimum distance between two carbon alpha is less than 5
+            #D = cpx.ca_dist(A)
+            #i,j = np.unravel_index(D.argmin(), D.shape)
+            #m = D[i,j]
+            #if m <5:
+            #    A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],100)
             # Write rotated ligand file in pdb 
             if args.minimizer:
                 cpx.lig.write_atoms(os.path.join(FLD['PRO'],'{:06d}.pdb'.format(idx)),A)
             else:
-                cpx.lig.write_atoms(os.path.join(FLD['PRO'],'{}_{}_{:06d}.pdb'.format(cpx.lig.name,key,idx)),A)
+                # Write the list of pdb to cluster
+                ligName = os.path.join(FLD['PRO'],'{}_{}_{:06d}.pdb'.format(cpx.lig.name,key,idx))
+                cpx.lig.write_atoms(ligName,A)
+                print(ligName,file=ligLst)
         logger.debug("End sampling of template {}".format(key))
         # Run minimizer for each rotation
         if args.minimizer: 
             logger.debug('Start of minimizer')
             for k in range(args.n):
+                # Rename pdbs, conf is ligand name with the interolog associated, lig_pro is for minimizer, li_pro_o is lig_pro name after minimization
                 conf = "{}_{:06d}".format(key,k)
                 lig_pro = os.path.join(FLD['PRO'],'{:06d}.pdb'.format(k))
                 lig_pro_o = os.path.join(FLD['PRO'],'{}_{}.pdb'.format(cpx.lig.name,conf))
                 successed = mini.run(cpx.rec.path,lig_pro,FLD['OUT'],conf=conf)
                 # Rename rotated ligand pdb file
                 subprocess.call(["mv",lig_pro,lig_pro_o])
-                # Rename ligand file after minimizer and create complex pdb file
+                # Rename ligand file after minimizer
                 if successed:
+                    # Rename pdbs after minimization by adding the ligand name
                     out_f_1 = os.path.join(FLD['OUT'],'pdb_mini/{}_min.pdb'.format(conf))
                     out_f = os.path.join(FLD['OUT'],'pdb_mini/{}_{}_min.pdb'.format(cpx.lig.name,conf))
                     subprocess.call(["mv",out_f_1,out_f])
-                    cpx_out_file = os.path.join(FLD['CPX'],'{}_cpx_{}.pdb'.format(cpx.rec.name,conf))
-                    subprocess.call("sed '1d' {} > tmp.txt; cat {} tmp.txt > {}; rm tmp.txt".format(out_f,cpx.rec.path,cpx_out_file),shell=True)
+                    # Write the list of pdb to cluster
+                    print(out_f,file=ligLst)
+                    #cpx_out_file = os.path.join(FLD['CPX'],'{}_cpx_{}.pdb'.format(cpx.rec.name,conf))
+                    #subprocess.call("sed '1d' {} > tmp.txt; cat {} tmp.txt > {}; rm tmp.txt".format(out_f,cpx.rec.path,cpx_out_file),shell=True)
+
             logger.debug('End of minimizer')
+    ligLst.close()
+
+    
+    
+             
 logger.debug('End of program')
