@@ -89,9 +89,9 @@ def runAlign(file1,file2,interDirectory):
         blast =eval(f.read())   
     
     for key, value in parameters.items():
-		input_field = browser.find_element_by_id(key)
-		browser.execute_script("arguments[0].value = ''", input_field)
-		input_field.send_keys(value)
+        input_field = browser.find_element_by_id(key)
+        browser.execute_script("arguments[0].value = ''", input_field)
+        input_field.send_keys(value)
 	
     for key, value in blast.items():
 		el = browser.find_element_by_id(key)
