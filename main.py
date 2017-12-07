@@ -168,7 +168,7 @@ if args.cmd == 'run' or args.cmd == 'samples':
         cpx = Complex(rec,lig_aligned)
         sam_logger.info('Start sampling on template {}'.format(key))
         # Rotate ligand for each generated angles
-        for idx,l in enumerate(angles_generator(args.n,deg=deg)):
+        for idx,l in enumerate(angles_generator(args.n,deg=deg,dist=args.d)):
             sam_logger.info('Rotatation No. {:06d}({})'.format(idx,l))
             A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
             # Move ligand if the minimum distance between two carbon alpha is less than 5

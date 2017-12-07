@@ -33,7 +33,8 @@ def rot_around_rec_quat(axis,theta,phi):
     thetaq = np.exp(quat.quaternion(*t_rot_axis))
     return thetaq*phiq
 
-def angles_generator(k,deg=0,rot_lim=np.pi/24,self_lim=np.pi/24):
+
+def angles_generator(k,deg=0,rot_lim=np.pi/24,self_lim=np.pi/24,dist="uniform"):
     """
     Generate randomly k*5 rotation angles(2 for rotation around center and 3 for self rotation)
     thata and phi are selected from [-rot_lim,rot_lim]*(1-deg)
@@ -45,20 +46,28 @@ def angles_generator(k,deg=0,rot_lim=np.pi/24,self_lim=np.pi/24):
     deg -- value between 0 and 1. Default 0
     rot_lin -- maximum value of rotation angles around center in radian. Default pi/6
     self_lim -- maximum value of self-rotation angles. Default pi/6
+    dist -- sampling distribution. Value "uniform" or "normal". Default "uniform"
+            If dist == "normal", the probability of a rotation angle in [-lim, lim] is 0.997
     """
     for i in range(k):
         m = rot_lim * (1-deg)
         n = self_lim * (1-deg)
-        yield np.concatenate((np.random.sample(2)*m*2-m,np.random.sample(3)*2*n-n),axis=0)
+        if dist == "uniform":
+            yield np.concatenate((np.random.sample(2)*m*2-m,np.random.sample(3)*2*n-n),axis=0)
+        elif dist == "normal":
+            yield np.concatenate((np.random.normal(scale=m/3,size=2),np.random.normal(scale=n/3,size=3)),axis=0)
 
-def angles_random(deg=0,rot_lim=np.pi/24,self_lim=np.pi/24):
+def angles_random(deg=0,rot_lim=np.pi/24,self_lim=np.pi/24,dist='uniform'):
     """
     Generate a random set of rotation angles. Same as :
-    angles_generator(1,deg,rot_lim,self_lim)
+    angles_generator(1,deg,rot_lim,self_lim,dist)
     """
     m = rot_lim * (1-deg)
     n = self_lim * (1-deg)
-    return np.concatenate((np.random.sample(2)*m*2-m,np.random.sample(3)*2*n-n),axis=0)
+    if dist == "uniform":
+        return np.concatenate((np.random.sample(2)*m*2-m,np.random.sample(3)*2*n-n),axis=0)
+    elif dist == "normal":
+        return np.concatenate((np.random.normal(scale=m/3,size=2),np.random.normal(scale=n/3,size=3)),axis=0)
 
 def vec_to_dist(a,b,d):
     """
