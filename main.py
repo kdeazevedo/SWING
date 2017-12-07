@@ -168,7 +168,9 @@ if args.cmd == 'run' or args.cmd == 'samples':
         cpx = Complex(rec,lig_aligned)
         sam_logger.info('Start sampling on template {}'.format(key))
         # Rotate ligand for each generated angles
-        for idx,l in enumerate(angles_generator(args.n,deg=deg,dist=args.d)):
+        for idx,l in enumerate(angles_generator(args.n,deg=deg,dist=args.dist,
+            rot_lim=args.angle,self_lim=args.angle)):
+
             sam_logger.info('Rotatation No. {:06d}({})'.format(idx,l))
             A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
             # Move ligand if the minimum distance between two carbon alpha is less than 5
@@ -178,7 +180,7 @@ if args.cmd == 'run' or args.cmd == 'samples':
             #if m <5:
             #    A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],100)
             # Write rotated ligand file in pdb 
-            if args.minimizer:
+            if not args.no_minimizer:
                 cpx.lig.write_atoms(os.path.join(FLD['PRO'],'{:06d}.pdb'.format(idx)),A)
             else:
                 # Write the list of pdb to cluster
@@ -187,7 +189,7 @@ if args.cmd == 'run' or args.cmd == 'samples':
                 print(ligName,file=ligLst)
         logger.debug("End sampling of template {}".format(key))
         # Run minimizer for each rotation
-        if args.minimizer: 
+        if not args.no_minimizer: 
             logger.debug('Start of minimizer')
             for k in range(args.n):
                 # Rename pdbs, conf is ligand name with the interolog associated, lig_pro is for minimizer, li_pro_o is lig_pro name after minimization
