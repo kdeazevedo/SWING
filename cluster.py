@@ -12,7 +12,9 @@ Use (example) : python cluster.py -pdbdir test
 import os
 import sys
 import subprocess
+import logging
 
+logger = logging.getLogger('main.cluster')
 
 def createList (pdb_directory, step):
     '''
@@ -27,7 +29,7 @@ def createList (pdb_directory, step):
     elif step == "sample" :
         cmd="ls "+os.path.join(pdb_directory,"*.pdb")+" > pdb_list"
     else :
-        print ("Invalid step argument for pdb list creation before clustering")
+        logger.warn("Invalid step argument for pdb list creation before clustering")
     subprocess.call(cmd, shell=True)
     
     return None
@@ -40,21 +42,20 @@ def runClusco(pdbListName) :
         - pdbListName : the name of the pdb_directory : the name of the pdb which contains the pdb to cluster
     output : a list of pdbs
     '''    
-    cmd="wc -l "+pdbListName+" | sed 's/ pdb_list//'"
-    
     # Test that the pdb list is not empty
-    FNULL = open(os.devnull, 'w')
-    if subprocess.call(cmd, shell=True, stdout=FNULL) == "0" :
-        print ("pdb list to cluster is empty")
+    clusteredPDB=[]
+    with open(pdbListName,'r') as f:
+        count = sum(1 for line in f)
+    if count == 0:
+        logger.warn("pdb list to cluster is empty")
     # Cluster only if more than one pdb
-    elif subprocess.call(cmd, shell=True, stdout=FNULL) != "1" :
+    elif count > 1:
         cmdClusco="clusco -l "+pdbListName+" -s rmsd -o cluster_matrix.log -d 0.02 3"
         subprocess.call(cmdClusco, shell=True)
         print ("")
     
         integers=["0","1","2","3","4","5","6","7","8","9"]
-        clusteredPDB=[]
-        with open ("pdb_list.clustering0", "r") as cluster :
+        with open (pdbListName+".clustering0", "r") as cluster :
             for line in cluster :
                 if line[3:4] in integers :
                     top=line.split()

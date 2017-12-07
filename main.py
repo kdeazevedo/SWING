@@ -36,7 +36,7 @@ assert os.path.isfile(args.lig), "Ligand file not found"
 #  - pdb_mini     : store minimiser's pdb output
 #  - global_out   : store minimiser's global output
 pathlib.Path(args.o).mkdir(parents=True, exist_ok=True)
-fld_lst = [('FASTA','Fasta'),('INTER','Inter'),('CPX','Complex'),('PRO','Proteins'),
+fld_lst = [('FASTA','Fasta'),('INTER','Inter'),('PRO','Proteins'),
     ('PMIN','pdb_mini'),('GOUT','global_out'), ('LOG', 'log')]
 FLD = {'OUT':os.path.abspath(args.o)}
 for d,n in fld_lst:
@@ -57,7 +57,7 @@ FORMAT = '%(asctime)s - %(name_last)10s - %(levelname)8s - %(message)s'
 logger = logging.getLogger('main')
 logger.setLevel(logging.DEBUG)
 # Define file handler, log file is stored in OUTPUT, level = INFO
-fh = logging.FileHandler(os.path.join(FLD['OUT'],'log_{:%Y%m%d_%H%M%S}.txt'.format(datetime.now())))
+fh = logging.FileHandler(os.path.join(FLD['LOG'],'log_{:%Y%m%d_%H%M%S}.txt'.format(datetime.now())))
 fh.setLevel(logging.INFO)
 # Define stream handler, level = DEBUG
 ch = logging.StreamHandler()
@@ -100,7 +100,7 @@ if args.cmd == 'run' or args.cmd == 'download':
     logger.debug("Start download. Please wait...")
     dico = runAlign(recf,ligf,FLD['INTER'])
     # Write result in json format with prefix "Inter"
-    with open(os.path.join(FLD['INTER'],'Inter_{}.conf'.format(REC)),'w') as f:
+    with open(os.path.join(FLD['OUT'],'Inter_{}.conf'.format(REC)),'w') as f:
         json.dump(dico,f,indent=2)
         logger.info("Write alignment config file into {}".format(f.name))
 
@@ -117,10 +117,13 @@ if args.cmd == 'run' or args.cmd == 'align':
     logger.debug("Start of alignment with Pymol")
     # Run alignment on each interolog
     # Then, add aligned ligand's pdb file path into dico
+    alignedLst = open(os.path.join(FLD['OUT'],'pdb_list'),'w')
     for key in dico.keys():
         liste = dico[key]
         res = runPymolAlignment(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste['chn_l'],liste['chn_r'])
         dico[key]['lig_aligned']=res
+        print(res,file=alignedLst)
+    alignedLst.close()
     subprocess.call("mv pymol_script.pml out/log", shell=True)
     logger.debug("End of alignment with Pymol")
     
@@ -131,17 +134,17 @@ if args.cmd == 'run' or args.cmd == 'align':
    
     # Start alignment with pymol if command is run or align
     # Create a file containing the pdb list to cluster   
-    createList(FLD['PRO'], step="init")
     # Run clusco and create a list of pdb names representing each cluster
-    pdblist=runClusco(pdbListName="pdb_list")
+    pdblist=runClusco(pdbListName=os.path.join(FLD['OUT'],"pdb_list"))
     subprocess.call("mv out/*clustering* out/log", shell=True)
     
     # Only pdb in that pdblist will be used for initial position in sampling
     INTERTEM = r""+os.path.join(FLD['PRO'],LIG+"_(\w+)_aligned.pdb")
-    dico_t = {k:dico[k] for k in [re.match(INTERTEM,s).group(1) for s in pdblist] }
-    dico = dico_t
+    if len(pdblist) > 0:
+        dico_t = {k:dico[k] for k in [re.match(INTERTEM,s).group(1) for s in pdblist] }
+        dico = dico_t
     # Write dico into config file in json format with prefix "Samples"
-    with open(os.path.join(FLD['INTER'],'Samples_{}.conf'.format(REC)),'w') as f:
+    with open(os.path.join(FLD['OUT'],'Samples_{}.conf'.format(REC)),'w') as f:
         json.dump(dico,f,indent=2)
         logger.info("Write sampling config file into {}".format(f.name))
     
@@ -174,11 +177,11 @@ if args.cmd == 'run' or args.cmd == 'samples':
             sam_logger.info('Rotatation No. {:06d}({})'.format(idx,l))
             A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
             # Move ligand if the minimum distance between two carbon alpha is less than 5
-            #D = cpx.ca_dist(A)
-            #i,j = np.unravel_index(D.argmin(), D.shape)
-            #m = D[i,j]
-            #if m <5:
-            #    A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],100)
+            D = cpx.ca_dist(A)
+            i,j = np.unravel_index(D.argmin(), D.shape)
+            m = D[i,j]
+            if m <5:
+                A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],25)
             # Write rotated ligand file in pdb 
             if not args.no_minimizer:
                 cpx.lig.write_atoms(os.path.join(FLD['PRO'],'{:06d}.pdb'.format(idx)),A)
@@ -207,8 +210,6 @@ if args.cmd == 'run' or args.cmd == 'samples':
                     subprocess.call(["mv",out_f_1,out_f])
                     # Write the list of pdb to cluster
                     print(out_f,file=ligLst)
-                    #cpx_out_file = os.path.join(FLD['CPX'],'{}_cpx_{}.pdb'.format(cpx.rec.name,conf))
-                    #subprocess.call("sed '1d' {} > tmp.txt; cat {} tmp.txt > {}; rm tmp.txt".format(out_f,cpx.rec.path,cpx_out_file),shell=True)
             
             logger.debug('End of minimizer')
     ligLst.close()
@@ -216,4 +217,3 @@ if args.cmd == 'run' or args.cmd == 'samples':
     
              
 logger.debug('End of program')
-subprocess.call("mv out/log_* out/log", shell=True)
