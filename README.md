@@ -46,8 +46,8 @@ However, for a given pair of receptor and ligand, request from [InterEvol](http:
 The command above is equivalent to the followings :
 ```bash
 python3 main.py download -rec test/1AY7_r.pdb -lig test/1AY7_1_sep.pdb
-python3 main.py align -rec test/1AY7_r.pdb -lig test/1AY7_l_sep.pdb -c out/Inter/Inter.conf
-python3 main.py samples -rec test/1AY7_r.pdb -lig test/1AY7_l_sep.pdb -n 10 -c out/Inter/Samples.conf
+python3 main.py align -rec test/1AY7_r.pdb -lig test/1AY7_l_sep.pdb -c test/Inter_1AY7_r.conf
+python3 main.py samples -rec test/1AY7_r.pdb -lig test/1AY7_l_sep.pdb -n 10 -c test/Samples_1AY7_r.conf
 ```
 
 For more arguments' detail:
