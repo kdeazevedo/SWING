@@ -134,7 +134,7 @@ if args.cmd == 'run' or args.cmd == 'align':
     createList(FLD['PRO'], step="init")
     # Run clusco and create a list of pdb names representing each cluster
     pdblist=runClusco(pdbListName="pdb_list")
-    subprocess.call("mv out/*clustering* log", shell=True)
+    subprocess.call("mv out/*clustering* out/log", shell=True)
     
     # Only pdb in that pdblist will be used for initial position in sampling
     INTERTEM = r""+os.path.join(FLD['PRO'],LIG+"_(\w+)_aligned.pdb")
@@ -207,10 +207,11 @@ if args.cmd == 'run' or args.cmd == 'samples':
                     print(out_f,file=ligLst)
                     #cpx_out_file = os.path.join(FLD['CPX'],'{}_cpx_{}.pdb'.format(cpx.rec.name,conf))
                     #subprocess.call("sed '1d' {} > tmp.txt; cat {} tmp.txt > {}; rm tmp.txt".format(out_f,cpx.rec.path,cpx_out_file),shell=True)
-            subprocess.call("mv out/*log* log", shell=True)
+            
             logger.debug('End of minimizer')
     ligLst.close()
     
     
              
 logger.debug('End of program')
+subprocess.call("mv out/log_* out/log", shell=True)
