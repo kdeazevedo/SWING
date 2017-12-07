@@ -131,7 +131,7 @@ def run(rec,lig,filedir,conf=1):
     pdbpath = "{}/pdb_mini/{}_min.pdb".format(FILEDIR, conf)
     # global file
     inpath = "%s/minimizer/run_mini/global.dat"%(WORKDIR)
-    outpath = "{}/global_out/global_{}_min_{}.dat".format(FILEDIR, ligid, conf)
+    outpath = "{}/global_out/{}_min.dat".format(FILEDIR, conf)
     try:
         assert os.path.isfile(pdbfile)
         assert os.path.isfile(inpath)

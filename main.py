@@ -30,8 +30,8 @@ assert os.path.isfile(args.lig), "Ligand file not found"
 # Create output folders:
 # out
 #  - Fasta        : store proteins' fasta files
-#  - Inter        : store Interologs dowloaded from InterEvol, their alignements and config files
-#  - Complex      : store complex's pdb files after sampling (recepter + rotated ligand)
+#  - Inter        : store Interologs dowloaded from InterEvol and their alignements 
+#  - Log          : store logs
 #  - Proteins     : store all proteins' pdb files (original recepter, original ligand, rotated ligand, ... )
 #  - pdb_mini     : store minimiser's pdb output
 #  - global_out   : store minimiser's global output
@@ -136,7 +136,7 @@ if args.cmd == 'run' or args.cmd == 'align':
     # Create a file containing the pdb list to cluster   
     # Run clusco and create a list of pdb names representing each cluster
     pdblist=runClusco(pdbListName=os.path.join(FLD['OUT'],"pdb_list"))
-    subprocess.call("mv out/*clustering* out/log", shell=True)
+    subprocess.call("mv "+FLD["OUT"]+"/*clustering* "+FLD["LOG"], shell=True)
     
     # Only pdb in that pdblist will be used for initial position in sampling
     INTERTEM = r""+os.path.join(FLD['PRO'],LIG+"_(\w+)_aligned.pdb")
