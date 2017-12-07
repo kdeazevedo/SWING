@@ -1,5 +1,6 @@
 import dockerasmus.pdb as pdb
 import numpy as np
+from dockerasmus.pdb import Chain, Atom, Residue
 import models.residue
 
 LETTERS = {'ALA':'A','ARG':'R','ASN':'N','ASP':'D','CYS':'C','GLU':'E','GLN':'Q','GLY':'G',
@@ -73,3 +74,31 @@ def write_fasta(self,path):
     f.close()
 
 pdb.Protein.write_fasta = write_fasta
+
+
+@classmethod
+def from_pdb(cls, handle):
+    """
+    Create a new Protein object from a PDB file handle.
+    Arguments:
+    handle (file handle): a file-like object opened in
+    binary read mode (must be line-by-line iterable).
+    """
+    protein = cls()
+    for line in handle:
+        if line.startswith(b"ATOM  "):
+            atom = cls._parse_pdb_atom_line(line)
+        elif line.startswith(b"HETATM") and line.split()[3] == b'MSE':
+            atom = cls._parse_pdb_atom_line(line.replace(b"HETATM",b"ATOM  ").replace(b"MSE",b"MET"))
+        else:
+            continue
+        if atom['chainID'] not in protein:
+            protein[atom['chainID']] = Chain(atom['chainID'])
+        if atom['resSeq'] not in protein[atom['chainID']]:
+            protein[atom['chainID']][atom['resSeq']] = Residue(atom['resSeq'], atom['resName'])
+        protein[atom['chainID']][atom['resSeq']][atom['name']] = Atom(
+        atom['x'], atom['y'], atom['z'], atom['serial'], atom['name'],
+             protein[atom['chainID']][atom['resSeq']],
+        )
+    return protein
+pdb.Protein.from_pdb = from_pdb
