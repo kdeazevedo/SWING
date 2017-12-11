@@ -6,3 +6,4 @@ Minimizer/minimizer/
 out/
 geckodriver.log
 pymol_script.pml
+Analysis/.ipynb_checkpoints
