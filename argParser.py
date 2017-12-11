@@ -19,7 +19,7 @@ parser_run = subparsers.add_parser('run',
 )
 parser_run.add_argument('-n',type=int,default=1000,choices=range(1, 1000001),
         metavar="[1-1000000]", help='Number of sampling')
-parser_run.add_argument('--dist',default='uniform', choices = ["uniform","normal"],
+parser_run.add_argument('--dist',default='normal', choices = ["uniform","normal"],
         help='Sampling distribution')
 parser_run.add_argument('-a','--angle',default=np.pi/24,
         help='Rotation max/min angles (in radian, ex np.pi/24)')
@@ -34,7 +34,7 @@ parser_samples.add_argument('-n',type=int,default=1000,choices=range(1,1000001),
         metavar="[1-1000000]", help='Number of sampling')
 parser_samples.add_argument('-c','--config', required=True, default=argparse.SUPPRESS,
         help='Config file for sampling')
-parser_samples.add_argument('--dist',default='uniform', choices = ["uniform","normal"],
+parser_samples.add_argument('--dist',default='normal', choices = ["uniform","normal"],
         help='Sampling distribution')
 parser_samples.add_argument('-a','--angle',default=np.pi/24,
         help='Rotation max/min angles (in radian, ex np.pi/24)')

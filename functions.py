@@ -34,7 +34,7 @@ def rot_around_rec_quat(axis,theta,phi):
     return thetaq*phiq
 
 
-def angles_generator(k,deg=0,rot_lim=np.pi/24,self_lim=np.pi/24,dist="uniform"):
+def angles_generator(k,deg=0,rot_lim=np.pi/24,self_lim=np.pi/24,dist="normal"):
     """
     Generate randomly k*5 rotation angles(2 for rotation around center and 3 for self rotation)
     thata and phi are selected from [-rot_lim,rot_lim]*(1-deg)

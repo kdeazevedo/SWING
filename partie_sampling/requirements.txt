@@ -1,7 +1,0 @@
-pathlib
-logging
-numpy
-scipy
-quaternion
-selenium
-dockerasmus

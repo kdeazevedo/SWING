@@ -49,7 +49,7 @@ def runClusco(pdbListName) :
     if count == 0:
         logger.warn("pdb list to cluster is empty")
     # Cluster only if more than one pdb
-    elif count > 1:
+    elif count > 2:
         cmdClusco="clusco -l "+pdbListName+" -s rmsd -o cluster_matrix.log -d 0.02 3"
         subprocess.call(cmdClusco, shell=True)
         print ("")
