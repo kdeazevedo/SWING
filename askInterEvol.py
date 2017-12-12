@@ -6,6 +6,7 @@ import logging
 import json
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -94,11 +95,8 @@ def runAlign(file1,file2,interDirectory):
         input_field.send_keys(value)
 	
     for key, value in blast.items():
-        el = browser.find_element_by_id(key)
-        for option in el.find_elements_by_tag_name('option'):
-            if option.text == value:
-                option.click()
-                break
+        select = Select(browser.find_element_by_id(key))
+        select.select_by_visible_text(value)
 
     """
     Send the request
