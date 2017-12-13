@@ -1,3 +1,6 @@
+#Modified dockerasmus.pdb.residue.py
+#Original Author: Martin Larralde (althonos)
+#Modified by Hua-Ting Yao ([anthony]htyao)
 import dockerasmus.pdb as pdb
 
 # Overwrite dockerasmus.pdb.Residue name function

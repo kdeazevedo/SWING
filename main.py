@@ -22,7 +22,6 @@ from scipy.spatial.distance import cdist
 # Define arguments from argParser.py
 args = parser.parse_args()
 
-
 PDB = r'(\w+).pdb'
 # Check if files exist
 assert os.path.isfile(args.rec), "Recepter file not found"
@@ -164,7 +163,7 @@ if args.cmd == 'run' or args.cmd == 'samples':
     for key in dico.keys():
         liste = dico[key]
         # Degree = min of interolog's recepter and ligand's identity
-        deg = min(int(liste['idn_r'][:-1]),int(liste['idn_l'][:-1]))
+        deg = min(int(liste['idn_r'][:-1]),int(liste['idn_l'][:-1]))/100
         lig_aligned = pdb.Protein.from_pdb_file(liste['lig_aligned'])
         lig_aligned.name = LIG
         # Create Complex object for recepter and aligned ligand

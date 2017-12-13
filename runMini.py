@@ -71,6 +71,14 @@ def run(rec,lig,filedir,conf=1):
     FILEDIR = filedir
     WORKDIR = os.path.join(os.path.abspath(os.path.join(__file__,os.pardir)),'Minimizer')
     logger.debug('mini {}'.format(WORKDIR))
+    recid = os.path.basename(rec).split(".")[0]
+    logger.debug(recid)
+    ligid = os.path.basename(lig).split(".")[0]
+    logger.debug(ligid)
+    rootrecid = os.path.basename(rec)[:6]
+    logger.debug(rootrecid)
+    rootligid = os.path.basename(lig)[:6]
+    logger.debug(rootligid)
     
     ############################ END ARGS ################################
     
@@ -107,7 +115,12 @@ def run(rec,lig,filedir,conf=1):
     newglob = open("%s/minimizer/run_builder/global.dat"%(WORKDIR), "w+")
     for line in infile:
         globalelement = line.split()
-        linetowrite = ('{0[0]:>5s} {0[1]:>3s} {0[2]:>13s} {0[3]:>12s} {0[4]:>12s} {0[5]:>12s} {0[6]:>12s} {0[7]:>12s} {0[8]:>12s} {0[9]:>12s} {0[10]:>12s}\n'.format(globalelement))
+        try:
+            linetowrite = ('{0[0]:>5s} {0[1]:>3s} {0[2]:>13s} {0[3]:>12s} {0[4]:>12s} {0[5]:>12s} {0[6]:>12s} {0[7]:>12s} {0[8]:>12s} {0[9]:>12s} {0[10]:>12s}\n'.format(globalelement))
+        except:
+            logger.warn('Ligand too far. Failed on No. {}'.format(ligid))
+            return False
+
         newglob.write(linetowrite)
     newglob.close()
     
@@ -117,14 +130,6 @@ def run(rec,lig,filedir,conf=1):
     os.system("./rctrPDB.sh")
     
     #### Move newly created pdb file to pdb conf directory as well as the global file containing the energy information
-    recid = os.path.basename(rec).split(".")[0]
-    logger.debug(recid)
-    ligid = os.path.basename(lig).split(".")[0]
-    logger.debug(ligid)
-    rootrecid = os.path.basename(rec)[:6]
-    logger.debug(rootrecid)
-    rootligid = os.path.basename(lig)[:6]
-    logger.debug(rootligid)
     
     # PDB
     pdbfile = "%s/minimizer/run_builder/pdb_files/%s-%s.min1.pdb"%(WORKDIR, rootrecid, rootligid)   

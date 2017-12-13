@@ -1,3 +1,6 @@
+#Modified dockerasmus.pdb.protein.py
+#Original Author: Martin Larralde (althonos)
+#Modified by Hua-Ting Yao ([anthony]htyao)
 import dockerasmus.pdb as pdb
 import numpy as np
 from dockerasmus.pdb import Chain, Atom, Residue
