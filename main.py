@@ -16,7 +16,7 @@ import runMini as mini
 from argParser import parser
 import json
 from datetime import datetime
-from cluster import createList, runClusco
+from clustering import interologs_cluster
 from scipy.spatial.distance import cdist
 
 # Define arguments from argParser.py
@@ -116,14 +116,11 @@ if args.cmd == 'run' or args.cmd == 'align':
     logger.debug("Start of alignment with Pymol")
     # Run alignment on each interolog
     # Then, add aligned ligand's pdb file path into dico
-    alignedLst = open(os.path.join(FLD['OUT'],'pdb_list'),'w')
     for key in dico.keys():
         liste = dico[key]
         res = runPymolAlignment(lig.path,rec.path,os.path.join(FLD['INTER'],key+".pdb"),liste['chn_l'],liste['chn_r'])
         dico[key]['lig_aligned']=res
-        print(res,file=alignedLst)
-    alignedLst.close()
-    subprocess.call("mv pymol_script.pml out/log", shell=True)
+    subprocess.call("mv pymol_script.pml {}".format(FLD['LOG']), shell=True)
     logger.debug("End of alignment with Pymol")
     
  
@@ -134,14 +131,10 @@ if args.cmd == 'run' or args.cmd == 'align':
     # Start alignment with pymol if command is run or align
     # Create a file containing the pdb list to cluster   
     # Run clusco and create a list of pdb names representing each cluster
-    pdblist=runClusco(pdbListName=os.path.join(FLD['OUT'],"pdb_list"))
-    subprocess.call("mv "+FLD["OUT"]+"/*clustering* "+FLD["LOG"], shell=True)
     
     # Only pdb in that pdblist will be used for initial position in sampling
-    INTERTEM = r""+os.path.join(FLD['PRO'],LIG+"_(\w+)_aligned.pdb")
-    if len(pdblist) > 0:
-        dico_t = {k:dico[k] for k in [re.match(INTERTEM,s).group(1) for s in pdblist] }
-        dico = dico_t
+    dico = interologs_cluster(dico)
+    logger.debug('End of aligned ligands clustering')
     # Write dico into config file in json format with prefix "Samples"
     with open(os.path.join(FLD['OUT'],'Samples_{}.conf'.format(REC)),'w') as f:
         json.dump(dico,f,indent=2)
