@@ -3,7 +3,11 @@ import pathlib
 import logging
 import subprocess
 import re
+import pickle
+import sys
 import numpy as np
+import json
+from datetime import datetime
 import dockerasmus.pdb as pdb
 import models.residue
 import models.protein
@@ -14,10 +18,7 @@ import filedownload as fd
 from alignInterolog import runPymolAlignment
 import runMini as mini
 from argParser import parser
-import json
-from datetime import datetime
 from clustering import interologs_cluster
-from scipy.spatial.distance import cdist
 
 # Define arguments from argParser.py
 args = parser.parse_args()
@@ -85,6 +86,26 @@ lig.name = LIG
 lig.path = os.path.join(FLD['PRO'],LIG+'.pdb')
 logger.info("Start program. Receptor: {} Ligand: {} Output: {}".format(REC,LIG,FLD['OUT']))
 
+### Seed
+if args.__contains__('seed'):
+    seed = args.seed
+    try:
+        seed = int(seed)
+        np.random.seed(seed)
+    except:
+        try:
+            with open(seed,'rb') as f:
+                np.random.set_state(pickle.load(f))
+        except:
+            logger.error("Wrong seed's format or seed doesn't exist")
+            sys.exit(0)
+# Store np.RandomState if seed is not offered
+else:
+    seed = os.path.join(FLD['OUT'],'seed')
+    st = np.random.get_state()
+    with open(seed,'wb') as f:
+        pickle.dump(st,f)
+logger.info("Seed: {}".format(seed))
 
 ################################
 ###  Download from InterEvol ###
