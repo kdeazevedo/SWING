@@ -6,17 +6,21 @@ Complexes binaires solubles
 3TUI
 1KKL
 1N2C
+5
 
 Anticorps-antigène
 1AHW
-1DQJ
+1BGX
 1MLC
+1
 
 Homomères C2
 Aucun
+2
 
 Homomères D2
 1sjw
+2
 
 Inter domaine-domaine
 Tous
@@ -24,3 +28,4 @@ Tous
 
 Macro-assemblages
 Aucun
+5
