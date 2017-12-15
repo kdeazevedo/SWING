@@ -10,29 +10,11 @@ Use `pip3` to install.
 pip3 install -r requirements.txt
 ```
 ### The third party software
-`Minimiser`, `Pymol` (https://pymol.org/2/) and `ClusCo` (https://bitbucket.org/mjamroz/clusco/overview) are used in this program.
+`Minimiser` and `Pymol` (https://pymol.org/2/) are used in this program.
 
 Please copy `minimiser` folder (from [here](https://github.com/meetU-MasterStudents/2017-2018_partage/tree/master/Codes/Minimizer)) into `Minimiser` folder.
 
 Then, install `Pymol` following instructions from its official page ([here](http://www.pymol.org/install))
-
-Finally, download `ClusCo` from [here](https://bitbucket.org/mjamroz/clusco/downloads/) and follow instructions from [here](https://bitbucket.org/mjamroz/clusco/overview) for installation. Beware, you must also install tclap and cmake.
-
-For ubuntu users :
-```
-sudo apt-get install libtclap-dev
-sudo apt-get install cmake
-```
-For mac users :
-```
-brew install tclap
-brew install cmake
-```
-Moreover, to be in concordance with our program, you have to rename the executable from clusco_cpu to clusco, and also move the executable to your bin directory in your root directory. For Unix users, you can do both with one command line :
-```
-sudo mv clusco_cpu /usr/local/bin/clusco
-```
-
 
 ## Quick start:
 A command example to run the program from A to Z :
@@ -41,7 +23,7 @@ python3 main.py run -rec test/1AY7_r.pdb -lig test/1AY7_l_sep.pdb -n 10
 ```
 This command will do the sampling with the two pdb files in the test directory, use the minimizer and generate 10 conformations.
 
-However, for a given pair of receptor and ligand, request from [InterEvol](http://biodev.cea.fr/interevol/) and pymol alignement could only be executed once for ever. Hence, three parts of program can be run separately with proper positional arguments.
+Some of steps will take times to complete, especially for interologs downloading. Fortunately, the request of [InterEvol](http://biodev.cea.fr/interevol/) and pymol alignement could only be executed once for a given pair of receptor and ligand. Hence, three parts of program can be run separately with proper positional arguments.
 
 The command above is equivalent to the followings :
 ```bash
@@ -50,7 +32,7 @@ python3 main.py align -rec test/1AY7_r.pdb -lig test/1AY7_l_sep.pdb -c test/Inte
 python3 main.py samples -rec test/1AY7_r.pdb -lig test/1AY7_l_sep.pdb -n 10 -c test/Samples_1AY7_r.conf
 ```
 
-For more arguments' detail:
+For more arguments' and usage's detail:
 ```bash
 python3 main.py -h
 ```
@@ -61,6 +43,5 @@ It is highly recommended to use the minimizer along with our program. By default
 ```bash
 python3 main.py run -rec test/1AY7_r.pdb -lig test/1AY7_l_sep.pdb -n 10 --no-minimizer
 ```
-
 ## For more information
 If you wish more information regarding the specifications of the program (detailed informations on how to run the program, output configuration, optional InterEvol parameters tuning...), you can read the [wiki on Github](https://github.com/meetU-MasterStudents/2017-2018_Equipe10/wiki).
