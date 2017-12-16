@@ -154,7 +154,8 @@ if args.cmd == 'run' or args.cmd == 'align':
     # Run clusco and create a list of pdb names representing each cluster
     
     # Only pdb in that pdblist will be used for initial position in sampling
-    dico = interologs_cluster(dico)
+    if len(dico) > 1:
+        dico = interologs_cluster(dico)
     logger.debug('End of aligned ligands clustering')
     # Write dico into config file in json format with prefix "Samples"
     with open(os.path.join(FLD['OUT'],'Samples_{}.conf'.format(REC)),'w') as f:
