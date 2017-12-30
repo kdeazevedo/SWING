@@ -85,9 +85,10 @@ def runPymolAlignment(ligand, receptor, interolog, chainLigand, chainReceptor):
 	#name the alignment actors
     ligandName = os.path.basename(ligand).replace(".pdb","")
     receptorName = os.path.basename(receptor).replace(".pdb","")
-    interologName = os.path.basename(interolog).replace(".pdb","")
+    interologName = os.path.basename(interolog)
     interologRec = interologName.replace(".pdb","_rec")
     interologLig = interologName.replace(".pdb","_lig")
+    interologName = interologName.replace(".pdb","")
     output = ligand.replace(".pdb", "_"+interologName+"_aligned.pdb")
     
     
