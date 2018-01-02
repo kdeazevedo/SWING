@@ -1,0 +1,74 @@
+from snakemake.utils import min_version
+
+min_version("3.13.3")
+configfile:"config.json"
+
+swingdir=expand("{swingdir}",swingdir=config["swingdir"])
+scoringdir=expand("{scoringdir}",scoringdir=config["scoringdir"])
+inputdir=expand("{inputdir}",inputdir=config["inputdir"])
+
+recfile=expand("{recfile}", recfile=config["recfile"])
+ligfile=expand("{ligfile}", ligfile=config["ligfile"])
+interfile=expand("{interfile}",interfile=config["interfile"])
+samplefile=expand("{samplefile}",samplefile=config["samplefile"])
+
+interpath=expand("{inputdir}{interfile}",interfile=interfile,inputdir=inputdir)
+samplepath=expand("{inputdir}{samplefile}",samplefile=samplefile,inputdir=inputdir)
+
+rule all:
+    input:
+        "outputs/scoring/"
+
+rule download_interologs:
+    input:
+        recfile=recfile,
+        ligfile=ligfile,
+    output:
+        expand("outputs/sampling/out/{interfile}",interfile=interfile)
+    shell:"python3 {swingdir}main.py download -rec {inputdir}{input.recfile} -lig {inputdir}{input.ligfile} -o outputs/sampling"
+
+rule align_interologs:
+    input:
+        recfile=recfile,
+        ligfile=ligfile,
+        interfile=interpath if config["mode"] == "align"
+                  else expand("outputs/sampling/out/{interfile}",ligfile=config["ligfile"],recfile=config["recfile"],interfile=config["interfile"])
+    output:
+        expand("outputs/sampling/out/{samplefile}",samplefile=samplefile)
+    shell:"python3 {swingdir}main.py align -rec {inputdir}{input.recfile} -lig {inputdir}{input.ligfile} -c {input.interfile} -o outputs/sampling"
+
+rule sample_and_minimize:
+    input:
+        recfile=recfile,
+        ligfile=ligfile,
+        samplefile=samplepath if config["mode"] == "samples"
+                   else expand("outputs/sampling/out/{samplefile}",ligfile=config["ligfile"],recfile=config["recfile"],samplefile=config["samplefile"])
+    output:
+        "outputs/sampling/sampling.result"
+    params:
+        nconf=config["nconf"]
+    shell: "python3 {swingdir}main.py samples -rec {inputdir}{input.recfile} -lig {inputdir}{input.ligfile} -n {params.nconf} -c {input.samplefile} -o outputs/sampling/"
+
+rule cat:
+    input:
+        "outputs/sampling/sampling.result",
+        recfile=recfile
+    output:
+        "outputs/sampling/out/pdb_mini/"
+    shell: "python3 concatenate.py -dir {output} -rec input/{recfile}" if config["whichscoring"] == "MeetDockOne"
+            else "echo Nothing to concatenate"
+
+rule scoring:
+    input:
+        "outputs/sampling/out/pdb_mini/",
+    params:
+        recChain = config["recChain"],
+        ligChain = config["ligChain"],
+        depth = config["depth"],
+        ph = config["ph"],
+        dist = config["dist"],
+        recfile=recfile
+    output:
+        "outputs/scoring/"
+    shell: "{scoringdir}meetdock  {input} -recChain {params.recChain} -ligChain {params.ligChain}  -shape -electro -jones -proba -outdir {output} -depth {params.depth} -pH {params.ph} -dist {params.dist}"
+            if config["whichscoring"] == "MeetDockOne" else "python3 {scoringdir}score-conformations.py -i {input.cpxdir} -r {inputdir}{params.recfile} -o {output}"

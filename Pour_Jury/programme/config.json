@@ -1,0 +1,17 @@
+{
+    "swingdir" : "SWING/",
+    "inputdir" : "test/",
+    "scoringdir" : "MeetDockOne/",
+    "whichscoring" : "MeetDockOne",
+    "mode" : "all",
+    "recfile" : "1AY7_r.pdb",
+    "ligfile" : "1AY7_l_sep.pdb",
+    "interfile" : "Inter_1AY7_r.conf",
+    "samplefile" : "Samples_1AY7_r.conf",
+    "nconf" : 5,
+    "recChain" : "A",
+    "ligChain" : "B",
+    "depth" : "msms",
+    "ph" : 7,
+    "dist" : 8.5,
+}
