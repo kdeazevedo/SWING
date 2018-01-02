@@ -24,7 +24,7 @@ rule download_interologs:
         recfile=recfile,
         ligfile=ligfile,
     output:
-        expand("outputs/sampling/out/{interfile}",interfile=interfile)
+        expand("outputs/sampling/{interfile}",interfile=interfile)
     shell:"python3 {swingdir}main.py download -rec {inputdir}{input.recfile} -lig {inputdir}{input.ligfile} -o outputs/sampling"
 
 rule align_interologs:
@@ -34,7 +34,7 @@ rule align_interologs:
         interfile=interpath if config["mode"] == "align"
                   else expand("outputs/sampling/out/{interfile}",ligfile=config["ligfile"],recfile=config["recfile"],interfile=config["interfile"])
     output:
-        expand("outputs/sampling/out/{samplefile}",samplefile=samplefile)
+        expand("outputs/sampling/{samplefile}",samplefile=samplefile)
     shell:"python3 {swingdir}main.py align -rec {inputdir}{input.recfile} -lig {inputdir}{input.ligfile} -c {input.interfile} -o outputs/sampling"
 
 rule sample_and_minimize:
@@ -54,13 +54,13 @@ rule cat:
         "outputs/sampling/sampling.result",
         recfile=recfile
     output:
-        "outputs/sampling/out/pdb_mini/"
+        "outputs/sampling/pdb_mini/"
     shell: "python3 concatenate.py -dir {output} -rec input/{recfile}" if config["whichscoring"] == "MeetDockOne"
             else "echo Nothing to concatenate"
 
 rule scoring:
     input:
-        "outputs/sampling/out/pdb_mini/",
+        "outputs/sampling/pdb_mini/",
     params:
         recChain = config["recChain"],
         ligChain = config["ligChain"],
