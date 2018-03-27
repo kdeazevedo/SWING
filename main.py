@@ -191,11 +191,11 @@ if args.cmd == 'run' or args.cmd == 'samples':
             sam_logger.info('Rotatation No. {:06d}({})'.format(idx,l))
             A = cpx.rotations(l[0],l[1],l[2],l[3],l[4])
             # Move ligand if the minimum distance between two carbon alpha is less than 5
-            D = cpx.ca_dist(A)
-            i,j = np.unravel_index(D.argmin(), D.shape)
-            m = D[i,j]
-            if m <5:
-                A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],25)
+            # D = cpx.ca_dist(A)
+            # i,j = np.unravel_index(D.argmin(), D.shape)
+            # m = D[i,j]
+            # if m <5:
+            #    A = A+vec_to_dist(cpx.rec.get_ca()[i],A[cpx.lig.get_ca_ind()][j],25)
             # Write rotated ligand file in pdb 
             if not args.no_minimizer:
                 cpx.lig.write_atoms(os.path.join(FLD['PRO'],'{:06d}.pdb'.format(idx)),A)
